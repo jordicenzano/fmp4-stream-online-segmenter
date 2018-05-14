@@ -1,23 +1,22 @@
 //Jordi Cenzano 2018
 const fs = require('fs');
+const enAtomNames = require('./mp4AtomParser.js').enAtomNames;
 
 "use strict";
 
 //Atom header size
 const ATOM_SHORT_HEADER_SIZE = 8;
 
-//Atoms IDs
-const enAtomTypes = {
-    ALL: 'ALL',
-    MOOV: 'moov',
-    MOOF: 'moof',
-    MDAT: 'mdat'
+//Destination types (internall)
+const enDestTypes = {
+    FILE: 'file',
+    MEM: 'mem'
 };
 
 // Constructor
 class mp4Atom {
 
-    constructor(atom_types_to_save) {
+    constructor(atom_types_to_save, file_offset = 0, verbose = false) {
 
         this.header = null;
         this.header_data = new Buffer.alloc(ATOM_SHORT_HEADER_SIZE);
@@ -28,6 +27,15 @@ class mp4Atom {
         this.bytes_to_next = -1;
 
         this.data = null;
+
+        this.atom_data = [];
+
+        this.file_offset = file_offset;
+
+        this.verbose = verbose;
+
+        if (this.verbose)
+            console.log("New atom started at original file pos: " + this.file_offset);
     }
 
     static decodeAtomHeader(atomHeader) {
@@ -64,6 +72,17 @@ class mp4Atom {
         return ret;
     }
 
+    getBuffer() {
+        if (this.atom_data.length <= 0)
+            return null;
+
+        return Buffer.concat(this.atom_data);
+    }
+
+    getOriginalFileOffset() {
+        return this.file_offset;
+    }
+
     _addBytesToAtomHeader(src, src_pos) {
         let src_pos_int = 0;
         if (typeof (src_pos) === 'number')
@@ -84,26 +103,42 @@ class mp4Atom {
         return added_length;
     }
 
-    _addBytes(file, src, start, end) {
+    _saveBytesToMem(buffer_data, src, start, end) {
+        return this._saveBytes(enDestTypes.MEM, buffer_data, src, start, end);
+    }
+
+    _saveBytesToDisc(file, src, start, end) {
+        return this._saveBytes(enDestTypes.FILE, file, src, start, end);
+    }
+    
+    _saveBytes(dest_type, dest, src, start, end) {
         let ret = 0;
 
         if ((typeof (start) === 'number') && (typeof (end) === 'number')) {
-            ret = end - start;
-
-            if ((ret > 0) && (file != null))
-                fs.writeSync(file, src, start, ret);
+            ret = this._saveBytesToDestination(dest_type, dest, src, start, end);
         }
-        else if ((typeof (start) === 'number') && (typeof (end) != 'number')) {
-            ret = src.length - start;
-
-            if ((ret > 0)&& (file != null))
-                fs.writeSync(file, src, start);
+        else if ((typeof (start) === 'number') && (typeof (end) !== 'number')) {
+            ret = this._saveBytesToDestination(dest_type, dest, src, start, src.length);
         }
         else {
-            ret = src.length;
+            ret = this._saveBytesToDestination(dest_type, dest, src, 0, src.length);
+        }
 
-            if ((ret > 0) && (file != null))
-                fs.writeSync(file, src);
+        return ret;
+    }
+
+    _saveBytesToDestination(dest_type, dest, src, start, end) {
+        let ret = end - start;
+
+        if ( (ret > 0) && (dest != null) ) {
+            if (dest_type === enDestTypes.FILE) {
+                    fs.writeSync(dest, src, start, ret);
+            }
+            else if (dest_type === enDestTypes.MEM) {
+                let buf = Buffer.alloc(ret);
+                src.copy(buf, 0, start, end);
+                dest.push(buf);
+            }
         }
 
         return ret;
@@ -118,14 +153,24 @@ class mp4Atom {
     }
 
     isSaved() {
-        return this._saveAtom();
+        return this._saveAtomToDisc();
     }
 
-    _saveAtom() {
+    _saveAtomToDisc() {
         let ret = false;
 
         if ((this.header != null) && (this.atom_types_to_save.indexOf(this.header.type) >= 0))
             ret = true;
+
+        return ret;
+    }
+
+    _saveAtomToMem() {
+        let ret = false;
+
+        if ((this.header != null) && (this.header.type === enAtomNames.MOOV)) {
+            ret = true;
+        }
 
         return ret;
     }
@@ -143,10 +188,12 @@ class mp4Atom {
                 this.bytes_to_next -= ATOM_SHORT_HEADER_SIZE;
                 this.is_header_saved = true;
 
-                if (this._saveAtom())
-                    this._addBytes(file, this.header_data);
-            }
+                if (this._saveAtomToMem())
+                    this._saveBytesToMem(this.atom_data, this.header_data);
 
+                if (this._saveAtomToDisc())
+                    this._saveBytesToDisc(file, this.header_data);
+            }
 
             let start_int = written_header;
             if (typeof (start) === 'number')
@@ -158,8 +205,11 @@ class mp4Atom {
 
             const end_atom_int = Math.min(start_int + this.bytes_to_next, end_int);
 
-            if (this._saveAtom())
-                written_data = this._addBytes(file, src, start_int, end_atom_int);
+            if (this._saveAtomToMem())
+                this._saveBytesToMem(this.atom_data, src, start_int, end_atom_int);
+
+            if (this._saveAtomToDisc())
+                written_data = this._saveBytesToDisc(file, src, start_int, end_atom_int);
             else
                 written_data = (end_atom_int - start_int);
 
@@ -172,4 +222,3 @@ class mp4Atom {
 
 //Export class
 module.exports.mp4Atom = mp4Atom;
-module.exports.enAtomTypes = enAtomTypes;

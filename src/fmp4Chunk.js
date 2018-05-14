@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Cmp4Atom = require('./mp4Atom.js');
+const enAtomNames = require('./mp4AtomParser.js').enAtomNames;
 
 "use strict";
 
@@ -24,6 +25,9 @@ class fmp4Chunk {
 
         this.currentAtom = null;
 
+        this.file_offset = -1;
+        this.size = 0;
+
         if ((options != null) && (typeof (options) === 'object')) {
 
             if (("is_writing_chunks" in options) && (typeof(options.is_writing_chunks) === 'boolean'))
@@ -44,8 +48,14 @@ class fmp4Chunk {
             this.filename = this._createFilename(options.base_path, options.chunk_base_file_name, index, file_number_length, file_extension);
             this.filename_ghost = this._createFilename(options.base_path, options.chunk_base_file_name, index, file_number_length, file_extension, ghost_prefix);
 
-            //Create ghost file indicting is growing
-            fs.writeFileSync(this.filename_ghost, "");
+            this.verbose = false;
+            if (("verbose" in options) && (options.verbose === true)) 
+                this.verbose = true;
+
+            if (this.is_writing_chunks) {
+                //Create ghost file indicting is growing
+                fs.writeFileSync(this.filename_ghost, "");
+            }
 
             //Create growing file
             this.curr_file = null;
@@ -66,14 +76,17 @@ class fmp4Chunk {
         }
     }
 
-    createNewAtom(atom_types_to_save) {
+    createNewAtom(atom_types_to_save, file_offset) {
         if (this.currentAtom != null)
             this._closeAtom();
 
         if (!Array.isArray(atom_types_to_save))
-            atom_types_to_save = [Cmp4Atom.enAtomTypes.ALL];
+            atom_types_to_save = [enAtomNames.ALL];
 
-        this.currentAtom = new Cmp4Atom.mp4Atom(atom_types_to_save)
+        if (this.file_offset < 0)
+            this.file_offset = file_offset;
+
+        this.currentAtom = new Cmp4Atom.mp4Atom(atom_types_to_save, file_offset, this.verbose)
     }
 
     _closeAtom() {
@@ -105,6 +118,8 @@ class fmp4Chunk {
 
             //Save data to atom / file
             written = this.currentAtom.addBytesToAtom(this.curr_file, data, start, end);
+
+            this.size = this.size + written;
         }
 
         return written;
@@ -131,6 +146,14 @@ class fmp4Chunk {
             ret = path.join(base_path, chunk_base_file_name + index.pad(file_number_length) + file_extension);
 
         return ret;
+    }
+
+    getOriginalFileOffset () {
+        return this.file_offset;
+    }
+
+    getSize () {
+        return this.size;
     }
 }
 
