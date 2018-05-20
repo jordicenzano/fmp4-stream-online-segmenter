@@ -168,7 +168,7 @@ class mp4Atom {
     _saveAtomToMem() {
         let ret = false;
 
-        if ((this.header != null) && (this.header.type === enAtomNames.MOOV)) {
+        if ((this.header != null) && ( (this.header.type === enAtomNames.MOOV) || (this.header.type === enAtomNames.MOOF))) {
             ret = true;
         }
 

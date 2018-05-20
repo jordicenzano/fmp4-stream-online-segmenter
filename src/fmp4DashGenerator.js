@@ -10,6 +10,8 @@ const path = require('path');
 
 "use strict";
 
+const CHUNK_TOLERANCE_DUR_S = 0.2;
+
 const enChunkType = {
     LAST: 'last',
     INIT: 'init',
@@ -18,38 +20,55 @@ const enChunkType = {
 
 class fmp4DashGenerator {
 
-    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 4, manifest_type = dashManifest.enChunklistType.SegmentList) {
+    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 0, manifest_type = dashManifest.enChunklistType.SegmentList) {
         this.is_creating_chunks = is_creating_chunks;
         this.base_path = base_path;
         this.chunk_base_filename = chunk_base_filename;
-        this.target_segment_dur_s = target_segment_dur_s;
+        this.target_segment_dur_s = target_segment_dur_s; //0 means create one chunk at each moof
 
         this.verbose = true;
 
         this.atoms_to_save = [enAtomNames.MOOV];
         this.current_chunk = {
             chunk_data: null,
-            current_index: 0,
+            index: 0,
             type: enChunkType.INIT
         };
 
-        this.moov_data_callback = null;
+        this.timebase = 1;
 
-        this.tmp_moof_counter = 0; //TODO:
+        this.callback_moov = null;
+        this.callback_moof = null;
+        this.callback_data_that = null;
+
+        this.callback_manifest = null;
+        this.callback_manifest_that = null;
 
         this.src_file_offset_abs = 0;
 
         this.result_manifest = "";
 
+        //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
+        //TODO: implement others as timeline
+
         //Create packet parsers. According to the docs it is compiled at first call, so we can NOT create it inside atom (time consuming)
-        this.mp4_moov_atom_parser = new mp4AtomParser.mp4AtomParser(this.verbose);
+        this.mp4_atom_parser = new mp4AtomParser.mp4AtomParser(this.verbose);
 
         //Create dash manifest generator
         this.dash_manifest_generator = new dashManifest.dash_manifest(manifest_type, path.basename(chunk_base_filename), {});
     }
 
-    setMoovDataCallback(func) {
-        this.moov_data_callback = func;
+    setDataCallbacks(that, func_moov, func_moof = null) {
+        this.callback_moov = func_moov;
+        this.callback_moof = func_moof;
+
+        this.callback_data_that = that;
+    }
+
+    setManifestCallback(that, func_manifest) {
+        this.callback_manifest = func_manifest;
+
+        this.callback_manifest_that = that;
     }
 
     processDataChunk(data, callback) {
@@ -68,8 +87,10 @@ class fmp4DashGenerator {
             //Process remaining mp4 data
             this._process_data_finish();
 
-            //TODO: Finish implementation of dash_manifest_generator
             this.result_manifest = this.dash_manifest_generator.toString();
+
+            if (this.verbose)
+                console.log('Manifest:\n' + this.result_manifest)
         }
         catch (err) {
             return callback(err, null);
@@ -86,13 +107,17 @@ class fmp4DashGenerator {
             //Add chunk to chunklist
             if (this.current_chunk.type === enChunkType.INIT) {
                 this.dash_manifest_generator.setMediaIniInfo(this.current_chunk, moov_data_tree);
+
+                if (this.verbose)
+                    console.log("Created new media ini chunk!");
             }
             else {
                 this.dash_manifest_generator.addVideoChunk(this.current_chunk);
+
+                if (this.verbose)
+                    console.log("Created new media chunk. Duration[s]: " + (this.current_chunk.chunk_data.getDurationSec()).toString());
             }
         }
-
-        this.tmp_moof_counter = 0;
 
         //Create new chunk if necessary
         if ((typeof (type) === 'undefined') || (type !== enChunkType.LAST)) {
@@ -103,9 +128,14 @@ class fmp4DashGenerator {
                 verbose: this.verbose
             };
 
-            this.current_chunk.chunk_data = new Cfmp4Chunk.fmp4Chunk(this.current_chunk.current_index, chunk_options);
+            //Create new chunk
+            this.current_chunk.chunk_data = new Cfmp4Chunk.fmp4Chunk(this.current_chunk.index, this.timebase, chunk_options);
             this.current_chunk.type = type;
-            this.current_chunk.current_index++;
+            this.current_chunk.index++;
+        }
+
+        if (this.callback_manifest !== null) {
+            this.callback_manifest(this.callback_manifest_that, this.dash_manifest_generator.toString());
         }
     }
 
@@ -126,7 +156,7 @@ class fmp4DashGenerator {
 
         if (this.current_chunk.chunk_data === null) {
             this._createNewChunk(enChunkType.INIT);
-            this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, 0, this.verbose);
+            this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, 0);
         }
 
         let currentPosReader = 0;
@@ -148,29 +178,49 @@ class fmp4DashGenerator {
                 }
 
                 if ((currentAtom.getType() === enAtomNames.MOOV) && (this.atoms_to_save.indexOf(enAtomNames.MOOV) >= 0)) {
-                    const moov_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_moov_atom_parser, currentAtom.getBuffer());
+                    const moov_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                    if (this.moov_data_callback !== null)
-                        this.moov_data_callback(moov_data_tree.getRootNode());
+                    this.timebase = moov_data_tree.getVideoTimescale();
+
+                    //Callback for moov atom
+                    if (this.callback_moov !== null)
+                        this.callback_moov(this.callback_data_that, moov_data_tree.getRootNode());
 
                     //Error if we break the constraints
                     this._checkInputFormatConstraints(moov_data_tree);
 
-                    this.atoms_to_save = [enAtomNames.MOOF, enAtomNames.MDAT];
+                    //Start a new chunk now
                     this._createNewChunk(enChunkType.REGULAR, moov_data_tree);
 
+                    //Now save to disk only MOOF and MDAT atoms
+                    this.atoms_to_save = [enAtomNames.MOOF, enAtomNames.MDAT];
                     this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs);
                 }
-                else if (currentAtom.getType() === enAtomNames.MOOF) {//TODO: Count by time
-                    if (this.tmp_moof_counter > 7) {//TODO: Max MOOF per chunk should be 1 to avoid problems in players
-                        this._createNewChunk(enChunkType.REGULAR);
+                else if (currentAtom.getType() === enAtomNames.MOOF) {
+                    const moof_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                        this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs);
+                    //Callback for moof atom
+                    if (this.callback_moof !== null)
+                        this.callback_moof(this.callback_data_that, moof_data_tree.getRootNode());
+
+                    this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs, moof_data_tree.getFragmentDuration(), moof_data_tree.getFragmentbaseMediaDecodeTime());
+                }
+                else if (currentAtom.getType() === enAtomNames.MDAT) {//Break chunk here, just MDAT saved
+                    if (this.target_segment_dur_s <= 0) {
+                        //Create a chunk to each moof
+                        this._createNewChunk(enChunkType.REGULAR);
                     }
                     else {
-                        this.tmp_moof_counter++;
-                        this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs);
+                        //If we assume the next is will be outside chunk dur
+                        const chunkdur_s = this.current_chunk.chunk_data.getDurationSec() + CHUNK_TOLERANCE_DUR_S;
+
+                        if (chunkdur_s > this.target_segment_dur_s) {
+                            this._createNewChunk(enChunkType.REGULAR);
+                        }
                     }
+
+                    this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs);
+
                 }
                 else {
                     this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs);

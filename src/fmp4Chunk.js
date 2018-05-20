@@ -17,9 +17,13 @@ Number.prototype.pad = function(size) {
 
 class fmp4Chunk {
 
-    constructor(index, options) {
+    constructor(index, timebase, options) {
 
         this.index = index;
+
+        this.duration_tb = 0;
+        this.timebase = timebase;
+        this.base_media_decode_time_tb = 0;
 
         this.is_writing_chunks = false;
 
@@ -59,6 +63,9 @@ class fmp4Chunk {
 
             //Create growing file
             this.curr_file = null;
+
+            if (this.verbose)
+                console.log("Created new chunk file: " + this.filename);
         }
     }
 
@@ -76,7 +83,7 @@ class fmp4Chunk {
         }
     }
 
-    createNewAtom(atom_types_to_save, file_offset) {
+    createNewAtom(atom_types_to_save, file_offset, aggregated_dur_tb = 0, base_media_decode_time_tb = 0) {
         if (this.currentAtom != null)
             this._closeAtom();
 
@@ -86,7 +93,11 @@ class fmp4Chunk {
         if (this.file_offset < 0)
             this.file_offset = file_offset;
 
-        this.currentAtom = new Cmp4Atom.mp4Atom(atom_types_to_save, file_offset, this.verbose)
+        this.duration_tb += aggregated_dur_tb;
+
+        this.base_media_decode_time_tb = base_media_decode_time_tb;
+
+        this.currentAtom = new Cmp4Atom.mp4Atom(atom_types_to_save, file_offset, this.verbose);
     }
 
     _closeAtom() {
@@ -113,6 +124,9 @@ class fmp4Chunk {
                 if (this.curr_file === null) {
                     //Create growing file
                     this.curr_file = fs.openSync(this.filename, 'w');
+
+                    if (this.verbose)
+                        console.log("Starting adding data to: " + this.filename);
                 }
             }
 
@@ -131,6 +145,22 @@ class fmp4Chunk {
 
     getFileName() {
         return this.filename;
+    }
+
+    getDurationSec() {
+        return this.duration_tb / this.timebase;
+    }
+
+    getDuration() {
+        return this.duration_tb;
+    }
+
+    getTimeBase() {
+        return this.timebase;
+    }
+
+    getBaseMediaDecodeTime() {
+        return this.base_media_decode_time_tb;
     }
 
     getFileNameGhost() {
