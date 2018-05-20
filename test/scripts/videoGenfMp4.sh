@@ -24,8 +24,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     FONT_PATH='/Library/Fonts/Arial.ttf'
 fi
 
+#Generate video real time (remove -re if you just want to generate the file quick)
 ffmpeg -f lavfi -re -i smptebars=duration=${DURATION_S}:size=320x200:rate=30 \
 -vf "drawtext=fontfile=${FONT_PATH}: text=fMP4 %{n}: x=50: y=30: fontsize=35: fontcolor=white: box=1: boxcolor=0x00000099" \
--pix_fmt yuv420p -c:v libx264 -b:v 250k -g 30 -keyint_min 120 -profile:v baseline -preset veryfast\
--c:a libfdk_aac -b:a 96k \
--f mp4 -movflags empty_moov+omit_tfhd_offset+frag_keyframe+default_base_moof $OUT_FILE
+-pix_fmt yuv420p -c:v libx264 -b:v 250k -g 30 -keyint_min 120 -profile:v baseline -preset veryfast \
+-f mp4 -movflags empty_moov+omit_tfhd_offset+frag_keyframe+default_base_moof ${OUT_FILE}
