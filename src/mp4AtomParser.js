@@ -310,7 +310,14 @@ class mp4AtomParser {
             .string('format', {
                 encoding: 'ascii',
                 length: 4
-            });//TODO: THIS IS NOT working in the browser!!!!!!! So it does NOT ALLOW to read codec string
+            }) // .buffer IS NOT working in the browser! Better use .array
+            .array('codec_ini', {
+                type: 'uint8',
+                length: function() {
+                    return this.size - 8;
+                }
+            });
+
             /*.buffer('codec_ini', {
                 clone: true,
                 length: function() {

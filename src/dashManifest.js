@@ -1,4 +1,5 @@
 const builder = require('xmlbuilder');
+const path = require('path');
 
 "use strict";
 
@@ -195,4 +196,4 @@ class dashManifest {
 
 //Export class
 module.exports.dash_manifest = dashManifest;
-module.exports.enChunklistType = enManifestType;
+module.exports.enManifestType = enManifestType;

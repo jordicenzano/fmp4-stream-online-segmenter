@@ -11817,6 +11817,7 @@ function extend() {
 
 },{}],69:[function(require,module,exports){
 const builder = require('xmlbuilder');
+const path = require('path');
 
 "use strict";
 
@@ -12006,9 +12007,9 @@ class dashManifest {
 
 //Export class
 module.exports.dash_manifest = dashManifest;
-module.exports.enChunklistType = enManifestType;
+module.exports.enManifestType = enManifestType;
 
-},{"xmlbuilder":67}],70:[function(require,module,exports){
+},{"path":18,"xmlbuilder":67}],70:[function(require,module,exports){
 (function (Buffer){
 const http = require("http");
 const https = require("https");
@@ -12417,7 +12418,7 @@ const enChunkType = {
 
 class fmp4DashGenerator {
 
-    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 0, manifest_type = dashManifest.enChunklistType.SegmentList) {
+    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 0, manifest_type = dashManifest.enManifestType.SegmentList) {
         this.is_creating_chunks = is_creating_chunks;
         this.base_path = base_path;
         this.chunk_base_filename = chunk_base_filename;
@@ -12446,12 +12447,18 @@ class fmp4DashGenerator {
         this.result_manifest = "";
 
         //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
+        //TODO: implement others as timeline
 
         //Create packet parsers. According to the docs it is compiled at first call, so we can NOT create it inside atom (time consuming)
         this.mp4_atom_parser = new mp4AtomParser.mp4AtomParser(this.verbose);
 
+        let manifest_options = {
+            is_splitting_chunks: is_creating_chunks,
+            is_using_relative_path: true
+        };
+
         //Create dash manifest generator
-        this.dash_manifest_generator = new dashManifest.dash_manifest(manifest_type, path.basename(chunk_base_filename), {});
+        this.dash_manifest_generator = new dashManifest.dash_manifest(manifest_type, path.basename(chunk_base_filename), manifest_options);
     }
 
     setDataCallbacks(that, func_moov, func_moof = null) {
@@ -13058,7 +13065,14 @@ class mp4AtomParser {
         this.atom_stsd_video_sample_entry_ini_avc = new binparser().endianess('big').uint32('size').string('format', {
             encoding: 'ascii',
             length: 4
-        }); //TODO: THIS IS NOT working in the browser!!!!!!!
+        }) // .buffer IS NOT working in the browser! Better use .array
+        .array('codec_ini', {
+            type: 'uint8',
+            length: function () {
+                return this.size - 8;
+            }
+        });
+
         /*.buffer('codec_ini', {
             clone: true,
             length: function() {

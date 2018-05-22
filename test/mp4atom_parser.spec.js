@@ -348,85 +348,91 @@ describe('mp4atom_parser', function() {
         };
         const results_moof_model = [
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":1
+                            "sequence_number": 1
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":2173,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 2173,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":0
+                                    "baseMediaDecodeTime": 0
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -434,85 +440,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":2
+                            "sequence_number": 2
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":3172,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 3172,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":15360
+                                    "baseMediaDecodeTime": 15360
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -520,85 +532,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":3
+                            "sequence_number": 3
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":4242,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 4242,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":30720
+                                    "baseMediaDecodeTime": 30720
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -606,85 +624,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":4
+                            "sequence_number": 4
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":4815,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 4815,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":46080
+                                    "baseMediaDecodeTime": 46080
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -692,85 +716,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":5
+                            "sequence_number": 5
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":5528,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 5528,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":61440
+                                    "baseMediaDecodeTime": 61440
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -778,85 +808,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":6
+                            "sequence_number": 6
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":5800,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 5800,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":76800
+                                    "baseMediaDecodeTime": 76800
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -864,85 +900,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":7
+                            "sequence_number": 7
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6093,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6093,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":92160
+                                    "baseMediaDecodeTime": 92160
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -950,85 +992,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":8
+                            "sequence_number": 8
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6196,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6196,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":107520
+                                    "baseMediaDecodeTime": 107520
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1036,85 +1084,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":9
+                            "sequence_number": 9
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6511,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6511,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":122880
+                                    "baseMediaDecodeTime": 122880
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1122,85 +1176,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":10
+                            "sequence_number": 10
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6634,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6634,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":138240
+                                    "baseMediaDecodeTime": 138240
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1208,85 +1268,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":11
+                            "sequence_number": 11
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6914,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6914,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":153600
+                                    "baseMediaDecodeTime": 153600
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1294,85 +1360,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":12
+                            "sequence_number": 12
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":7038,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 7038,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":168960
+                                    "baseMediaDecodeTime": 168960
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1380,85 +1452,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":13
+                            "sequence_number": 13
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":7238,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 7238,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":184320
+                                    "baseMediaDecodeTime": 184320
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1466,85 +1544,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":14
+                            "sequence_number": 14
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":7296,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 7296,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":199680
+                                    "baseMediaDecodeTime": 199680
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -1552,85 +1636,91 @@ describe('mp4atom_parser', function() {
                 ]
             },
             {
-                "size":224,
-                "type":"moof",
-                "start_pos_rel":0,
-                "start_pos":0,
-                "data":{
+                "size": 224,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {
 
                 },
-                "children":[
+                "children": [
                     {
-                        "size":16,
-                        "type":"mfhd",
-                        "start_pos_rel":8,
-                        "start_pos":8,
-                        "data":{
-                            "version":0,
-                            "flags":[
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
                                 0,
                                 0,
                                 0
                             ],
-                            "sequence_number":15
+                            "sequence_number": 15
                         }
                     },
                     {
-                        "size":200,
-                        "type":"traf",
-                        "start_pos_rel":24,
-                        "start_pos":24,
-                        "data":{
+                        "size": 200,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {
 
                         },
-                        "children":[
+                        "children": [
                             {
-                                "size":28,
-                                "type":"tfhd",
-                                "start_pos_rel":32,
-                                "start_pos":32,
-                                "data":{
-                                    "version":0,
-                                    "flags":{
-                                        "fl0":2,
-                                        "fl1":0,
-                                        "na1":0,
-                                        "na2":0,
-                                        "default_sample_flags_present":1,
-                                        "default_sample_size_present":1,
-                                        "default_sample_duration_present":1,
-                                        "na3":0,
-                                        "sample_description_index_present":0,
-                                        "base_data_offset_present":0
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
                                     },
-                                    "track_ID":1,
-                                    "default_sample_duration":512,
-                                    "default_sample_size":6942,
-                                    "default_sample_flags":16842752
+                                    "track_ID": 1,
+                                    "default_sample_duration": 512,
+                                    "default_sample_size": 6942,
+                                    "default_sample_flags": 16842752
                                 }
                             },
                             {
-                                "size":20,
-                                "type":"tfdt",
-                                "start_pos_rel":60,
-                                "start_pos":60,
-                                "data":{
-                                    "version":1,
-                                    "flags":[
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
                                         0,
                                         0,
                                         0
                                     ],
-                                    "baseMediaDecodeTime":215040
+                                    "baseMediaDecodeTime": 215040
                                 }
                             },
                             {
-                                "size":144,
-                                "type":"trun",
-                                "start_pos_rel":80,
-                                "start_pos":80,
-                                "data":{
-
+                                "size": 144,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        2,
+                                        5
+                                    ],
+                                    "sample_count": 30
                                 }
                             }
                         ]
@@ -2186,7 +2276,7 @@ describe('mp4atom_parser', function() {
                 }
             ]
         };
-        const results_moof_model = [];
+        const results_moof_model = []; //TODO: add moof with audio
 
         it('parse moov atom and check results', function (done) {
 
@@ -2231,8 +2321,6 @@ describe('mp4atom_parser', function() {
                 segmenter.processDataEnd(function (err, data) {
 
                     assert.deepEqual(moov_data_tree_model, results_model, "MOOV parsing results are different")
-
-                    //TODO: Check also moof data
 
                     done();
                 });

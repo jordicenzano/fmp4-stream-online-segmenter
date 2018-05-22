@@ -20,7 +20,7 @@ const enChunkType = {
 
 class fmp4DashGenerator {
 
-    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 0, manifest_type = dashManifest.enChunklistType.SegmentList) {
+    constructor(is_creating_chunks = false, base_path = "", chunk_base_filename = "chunk", target_segment_dur_s = 0, manifest_type = dashManifest.enManifestType.SegmentList) {
         this.is_creating_chunks = is_creating_chunks;
         this.base_path = base_path;
         this.chunk_base_filename = chunk_base_filename;
@@ -54,8 +54,13 @@ class fmp4DashGenerator {
         //Create packet parsers. According to the docs it is compiled at first call, so we can NOT create it inside atom (time consuming)
         this.mp4_atom_parser = new mp4AtomParser.mp4AtomParser(this.verbose);
 
+        let manifest_options = {
+            is_splitting_chunks: is_creating_chunks,
+            is_using_relative_path: true
+        };
+
         //Create dash manifest generator
-        this.dash_manifest_generator = new dashManifest.dash_manifest(manifest_type, path.basename(chunk_base_filename), {});
+        this.dash_manifest_generator = new dashManifest.dash_manifest(manifest_type, path.basename(chunk_base_filename), manifest_options);
     }
 
     setDataCallbacks(that, func_moov, func_moof = null) {
