@@ -4,6 +4,7 @@ const Cfmp4Chunk = require('./fmp4Chunk.js');
 const mp4AtomParser = require('./mp4AtomParser.js');
 const mp4AtomTree = require('./mp4AtomTree.js');
 const dashManifest = require('./dashManifest.js');
+const extErr = require('./extendedError');
 const enAtomNames = require('./mp4AtomParser.js').enAtomNames;
 const enTrackTypes = require('./mp4AtomParser.js').enTrackTypes;
 const path = require('path');
@@ -48,6 +49,8 @@ class fmp4DashGenerator {
 
         this.result_manifest = "";
 
+        this.err_to_return = null;
+
         //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
         //TODO: implement others as timeline
 
@@ -81,10 +84,12 @@ class fmp4DashGenerator {
             this._process_data_chunk(data);
         }
         catch (err) {
+            if (("isFatal" in err) && (err.isFatal() === true)) {
+                this.err_to_return = err;
+            }
+
             return callback(err);
         }
-
-        return callback(null);
     }
 
     processDataEnd(callback) {
@@ -98,6 +103,10 @@ class fmp4DashGenerator {
                 console.log('Manifest:\n' + this.result_manifest)
         }
         catch (err) {
+            //Return the 1st fatal error
+            if (this.err_to_return !== null)
+                err = this.err_to_return;
+
             return callback(err, null);
         }
 
@@ -145,19 +154,29 @@ class fmp4DashGenerator {
     }
 
     _checkInputFormatConstraints(moov_data_tree) {
-        let tracks = moov_data_tree.getTracksMediaTypes();
+        let tracks = moov_data_tree.getTracksIds();
         
         if (this.verbose)
             console.log("Found following tracks: " + JSON.stringify(tracks));
 
-        if (tracks.length !== 1)
-            throw new Error ("Number of tracks found != 1. Only 1 video track is allowed in this version");
+        if (tracks.total <= 0)
+            throw new extErr.extendedError("No tracks found", true);
 
-        if (tracks[0] !== enTrackTypes.VIDEO.type)
-            throw new Error ("Found a track type different than video. Only 1 video track is allowed in this version");
+        //TODO: Get any track as a timebase. For now video[0] is used
+        if (tracks[enTrackTypes.VIDEO.type].length < 1)
+            throw new extErr.extendedError("We need at least one video track in this version", true);
+
+        if (tracks[enTrackTypes.VIDEO.type].length > 1)
+            throw new extErr.extendedError("More than one video track found. Only 1 video track supported", true);
     }
 
     _process_data_chunk(data) {
+
+        //TODO:
+        // Idea share moov between video / audio files (probably will NOT work)
+        // Create N ini files (1 video + N Audios)
+        // Select what chunk belongs video or audio based in trackID
+        // We need 2 different chunk video / audio. Also save the chunk when it is decoded (except mdat)
 
         if (this.current_chunk.chunk_data === null) {
             this._createNewChunk(enChunkType.INIT);
@@ -185,7 +204,8 @@ class fmp4DashGenerator {
                 if ((currentAtom.getType() === enAtomNames.MOOV) && (this.atoms_to_save.indexOf(enAtomNames.MOOV) >= 0)) {
                     const moov_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                    this.timebase = moov_data_tree.getVideoTimescale();
+                    //For future segmentation
+                    this.timebase = moov_data_tree.getTimescale();
 
                     //Callback for moov atom
                     if (this.callback_moov !== null)

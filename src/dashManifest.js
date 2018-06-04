@@ -40,6 +40,8 @@ class dashManifest {
 
             mediaPresentationDuration: 0,//"PT0H0M15S"
 
+            traks_data: null,
+
             video: {
                 id: "video01",
                 mime_type: "video/mp4",
@@ -107,8 +109,10 @@ class dashManifest {
         this.moov_data_tree = moov_data_tree;
 
         //TODO: Get audio data too
-        this.dash_data.video.timebase = this.moov_data_tree.getVideoTimescale();
+
+        //TODO: Only supported 1 video track for now, this functions retuern data from the default video track if we do not pass trackID
         this.dash_data.video.codec_str = this.moov_data_tree.getVideoCodecStr();
+        this.dash_data.video.timebase = this.moov_data_tree.getTimescale();
     }
 
     addVideoChunk (chunk) {

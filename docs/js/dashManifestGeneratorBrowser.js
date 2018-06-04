@@ -11856,6 +11856,8 @@ class dashManifest {
 
             mediaPresentationDuration: 0, //"PT0H0M15S"
 
+            traks_data: null,
+
             video: {
                 id: "video01",
                 mime_type: "video/mp4",
@@ -11923,8 +11925,10 @@ class dashManifest {
         this.moov_data_tree = moov_data_tree;
 
         //TODO: Get audio data too
-        this.dash_data.video.timebase = this.moov_data_tree.getVideoTimescale();
+
+        //TODO: Only supported 1 video track for now, this functions retuern data from the default video track if we do not pass trackID
         this.dash_data.video.codec_str = this.moov_data_tree.getVideoCodecStr();
+        this.dash_data.video.timebase = this.moov_data_tree.getTimescale();
     }
 
     addVideoChunk(chunk) {
@@ -12214,7 +12218,31 @@ document.getElementById('input-file-url-process').addEventListener('click', onUR
 checkFileAPI();
 
 }).call(this,require("buffer").Buffer)
-},{"./fmp4DashGenerator.js":72,"buffer":6,"http":35,"https":11}],71:[function(require,module,exports){
+},{"./fmp4DashGenerator.js":73,"buffer":6,"http":35,"https":11}],71:[function(require,module,exports){
+//Jordi Cenzano 2018
+
+"use strict";
+
+// Constructor
+
+class extendedError extends Error {
+
+    constructor(message, is_fatal = false) {
+        super(message);
+
+        this.is_fatal = is_fatal;
+    }
+
+    isFatal() {
+        return this.is_fatal;
+    }
+
+}
+
+//Export class
+module.exports.extendedError = extendedError;
+
+},{}],72:[function(require,module,exports){
 const fs = require('fs');
 const path = require('path');
 const Cmp4Atom = require('./mp4Atom.js');
@@ -12395,13 +12423,14 @@ class fmp4Chunk {
 //Export class
 module.exports.fmp4Chunk = fmp4Chunk;
 
-},{"./mp4Atom.js":73,"./mp4AtomParser.js":74,"fs":5,"path":18}],72:[function(require,module,exports){
+},{"./mp4Atom.js":74,"./mp4AtomParser.js":75,"fs":5,"path":18}],73:[function(require,module,exports){
 //Jordi Cenzano 2018
 
 const Cfmp4Chunk = require('./fmp4Chunk.js');
 const mp4AtomParser = require('./mp4AtomParser.js');
 const mp4AtomTree = require('./mp4AtomTree.js');
 const dashManifest = require('./dashManifest.js');
+const extErr = require('./extendedError');
 const enAtomNames = require('./mp4AtomParser.js').enAtomNames;
 const enTrackTypes = require('./mp4AtomParser.js').enTrackTypes;
 const path = require('path');
@@ -12446,6 +12475,8 @@ class fmp4DashGenerator {
 
         this.result_manifest = "";
 
+        this.err_to_return = null;
+
         //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
         //TODO: implement others as timeline
 
@@ -12478,10 +12509,12 @@ class fmp4DashGenerator {
         try {
             this._process_data_chunk(data);
         } catch (err) {
+            if ("isFatal" in err && err.isFatal() === true) {
+                this.err_to_return = err;
+            }
+
             return callback(err);
         }
-
-        return callback(null);
     }
 
     processDataEnd(callback) {
@@ -12493,6 +12526,9 @@ class fmp4DashGenerator {
 
             if (this.verbose) console.log('Manifest:\n' + this.result_manifest);
         } catch (err) {
+            //Return the 1st fatal error
+            if (this.err_to_return !== null) err = this.err_to_return;
+
             return callback(err, null);
         }
 
@@ -12537,16 +12573,25 @@ class fmp4DashGenerator {
     }
 
     _checkInputFormatConstraints(moov_data_tree) {
-        let tracks = moov_data_tree.getTracksMediaTypes();
+        let tracks = moov_data_tree.getTracksIds();
 
         if (this.verbose) console.log("Found following tracks: " + JSON.stringify(tracks));
 
-        if (tracks.length !== 1) throw new Error("Number of tracks found != 1. Only 1 video track is allowed in this version");
+        if (tracks.total <= 0) throw new extErr.extendedError("No tracks found", true);
 
-        if (tracks[0] !== enTrackTypes.VIDEO.type) throw new Error("Found a track type different than video. Only 1 video track is allowed in this version");
+        //TODO: Get any track as a timebase. For now video[0] is used
+        if (tracks[enTrackTypes.VIDEO.type].length < 1) throw new extErr.extendedError("We need at least one video track in this version", true);
+
+        if (tracks[enTrackTypes.VIDEO.type].length > 1) throw new extErr.extendedError("More than one video track found. Only 1 video track supported", true);
     }
 
     _process_data_chunk(data) {
+
+        //TODO:
+        // Idea share moov between video / audio files (probably will NOT work)
+        // Create N ini files (1 video + N Audios)
+        // Select what chunk belongs video or audio based in trackID
+        // We need 2 different chunk video / audio. Also save the chunk when it is decoded (except mdat)
 
         if (this.current_chunk.chunk_data === null) {
             this._createNewChunk(enChunkType.INIT);
@@ -12571,7 +12616,8 @@ class fmp4DashGenerator {
                 if (currentAtom.getType() === enAtomNames.MOOV && this.atoms_to_save.indexOf(enAtomNames.MOOV) >= 0) {
                     const moov_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                    this.timebase = moov_data_tree.getVideoTimescale();
+                    //For future segmentation
+                    this.timebase = moov_data_tree.getTimescale();
 
                     //Callback for moov atom
                     if (this.callback_moov !== null) this.callback_moov(this.callback_data_that, moov_data_tree.getRootNode());
@@ -12622,7 +12668,7 @@ class fmp4DashGenerator {
 //Export class
 module.exports.fmp4DashGenerator = fmp4DashGenerator;
 
-},{"./dashManifest.js":69,"./fmp4Chunk.js":71,"./mp4AtomParser.js":74,"./mp4AtomTree.js":75,"path":18}],73:[function(require,module,exports){
+},{"./dashManifest.js":69,"./extendedError":71,"./fmp4Chunk.js":72,"./mp4AtomParser.js":75,"./mp4AtomTree.js":76,"path":18}],74:[function(require,module,exports){
 (function (Buffer){
 //Jordi Cenzano 2018
 const fs = require('fs');
@@ -12831,7 +12877,7 @@ class mp4Atom {
 module.exports.mp4Atom = mp4Atom;
 
 }).call(this,require("buffer").Buffer)
-},{"./mp4AtomParser.js":74,"buffer":6,"fs":5}],74:[function(require,module,exports){
+},{"./mp4AtomParser.js":75,"buffer":6,"fs":5}],75:[function(require,module,exports){
 //Jordi Cenzano 2018
 const binparser = require('binary-parser').Parser;
 
@@ -13259,7 +13305,7 @@ module.exports.mp4AtomParser = mp4AtomParser;
 module.exports.enAtomNames = enAtomNames;
 module.exports.enTrackTypes = enTrackTypes;
 
-},{"binary-parser":2}],75:[function(require,module,exports){
+},{"binary-parser":2}],76:[function(require,module,exports){
 //Jordi Cenzano 2018
 const treemodel = require('tree-model');
 const enAtomNames = require('./mp4AtomParser.js').enAtomNames;
@@ -13282,31 +13328,51 @@ class mp4AtomTree {
         return this.atom_data_tree_root;
     }
 
-    getTracksMediaTypes() {
-        let ret = [];
+    getDefaultVideoTrackID() {
+        let ret = -1;
+
+        const tracks_data = this.getTracksIds();
+
+        if (enTrackTypes.VIDEO.type in tracks_data && tracks_data[enTrackTypes.VIDEO.type].length > 0) ret = tracks_data[enTrackTypes.VIDEO.type][0];
+
+        return ret;
+    }
+
+    getTracksIds() {
+        let ret = {
+            total: 0
+        };
 
         let hdlr_atoms = this.atom_data_tree_root.all(function (node) {
             return node.model.type === enAtomNames.HDLR;
         });
 
         for (let i = 0; i < hdlr_atoms.length; i++) {
-            ret.push(hdlr_atoms[i].model.data.type);
+            let trackID = this._getParentTrackID(hdlr_atoms[i]);
+
+            if (!(hdlr_atoms[i].model.data.type in ret)) ret[hdlr_atoms[i].model.data.type] = [];
+
+            ret[hdlr_atoms[i].model.data.type].push(trackID);
+
+            ret.total++;
         }
 
         return ret;
     }
 
-    getVideoCodecStr() {
+    getVideoCodecStr(trackID = -1) {
         let ret = "";
         const self = this;
 
         //avc1.[PROFILE in Hex][PROFILE compact][Level in HEX]
         //avc1.42 C0 0D
 
+        if (trackID < 0) trackID = this.getDefaultVideoTrackID();
+
         let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
             if (node.model.type === enAtomNames.STSD) {
-                if (self._getParentTrackType(node) === enTrackTypes.VIDEO.type) {
+                if (self._getParentTrackType(node) === enTrackTypes.VIDEO.type && self._getParentTrackID(node) === trackID) {
                     ret = true;
                 }
             }
@@ -13333,14 +13399,16 @@ class mp4AtomTree {
         return ret;
     }
 
-    getVideoTimescale() {
+    getTimescale(trackID = -1) {
         let ret = -1;
         const self = this;
+
+        if (trackID < 0) trackID = this.getDefaultVideoTrackID();
 
         let mdhd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
             if (node.model.type === enAtomNames.MDHD) {
-                if (self._getParentTrackType(node) === enTrackTypes.VIDEO.type) {
+                if (self._getParentTrackID(node) === trackID) {
                     ret = true;
                 }
             }
@@ -13353,6 +13421,28 @@ class mp4AtomTree {
         }
 
         return ret;
+    }
+
+    getFragmentbaseTrackID() {
+        //TODO: This is NOT working the MOOF contains all streams (Video + audio), and the data positions are inside moof
+        // The MDAT atom contains all streams
+
+        let dur_tb = -1;
+
+        let tfhd_nodes = this.atom_data_tree_root.all(function (node) {
+            let ret = false;
+            if (node.model.type === enAtomNames.TFHD) {
+                ret = true;
+            }
+
+            return ret;
+        });
+
+        if (tfhd_nodes.length > 0) {
+            dur_tb = tfhd_nodes[0].model.data.track_ID;
+        }
+
+        return dur_tb;
     }
 
     getFragmentbaseMediaDecodeTime() {
@@ -13475,6 +13565,31 @@ class mp4AtomTree {
         return ret;
     }
 
+    _getParentTrackID(node) {
+        let ret = -1;
+
+        let node_path = node.getPath();
+
+        let n = node_path.length - 1;
+        while (n >= 0 && ret < 0) {
+            let curr_node = node_path[n];
+
+            //Find TRAK parent
+            if (curr_node.model.type === enAtomNames.TRAK) {
+                //Get TRAK childs
+                for (let child_elem in curr_node.children) {
+                    let trak_child = curr_node.children[child_elem];
+                    if (trak_child.model.type === enAtomNames.TKHD) //Return track type
+                        ret = trak_child.model.data.track_ID;
+                }
+            }
+
+            n--;
+        }
+
+        return ret;
+    }
+
     _addTreeChildAtom(atom_tree, atom, node) {
         let ret_node = null;
 
@@ -13537,4 +13652,4 @@ class mp4AtomTree {
 //Export class
 module.exports.mp4AtomTree = mp4AtomTree;
 
-},{"./mp4AtomParser.js":74,"tree-model":41}]},{},[70]);
+},{"./mp4AtomParser.js":75,"tree-model":41}]},{},[70]);

@@ -2304,6 +2304,7 @@ describe('mp4atom_parser', function() {
 
                 segmenter.processDataChunk(ts_packet_chunk, function (err) {
                     //TODO: For now only accepts video
+                    //TODO: Modify this test
                     assert.equal(err.message, "Number of tracks found != 1. Only 1 video track is allowed in this version");
 
                     if (err) {
@@ -2320,7 +2321,7 @@ describe('mp4atom_parser', function() {
             readFileStream.on("end", function() {
                 segmenter.processDataEnd(function (err, data) {
 
-                    assert.deepEqual(moov_data_tree_model, results_model, "MOOV parsing results are different")
+                    assert.deepEqual(moov_data_tree_model, results_moov_model, "MOOV parsing results are different");
 
                     done();
                 });

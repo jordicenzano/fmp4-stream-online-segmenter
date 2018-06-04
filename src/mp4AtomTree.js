@@ -22,31 +22,54 @@ class mp4AtomTree {
         return this.atom_data_tree_root;
     }
 
-    getTracksMediaTypes () {
-        let ret = [];
+    getDefaultVideoTrackID() {
+        let ret = -1;
+
+        const tracks_data = this.getTracksIds();
+
+        if ((enTrackTypes.VIDEO.type in tracks_data) && (tracks_data[enTrackTypes.VIDEO.type].length > 0))
+            ret = tracks_data[enTrackTypes.VIDEO.type][0];
+
+        return ret;
+    }
+
+    getTracksIds () {
+        let ret = {
+            total: 0
+        };
 
         let hdlr_atoms = this.atom_data_tree_root.all(function (node) {
             return node.model.type === enAtomNames.HDLR;
-          });
+        });
 
-          for (let i = 0; i < hdlr_atoms.length; i++) {
-            ret.push(hdlr_atoms[i].model.data.type);
-          }
+        for (let i = 0; i < hdlr_atoms.length; i++) {
+            let trackID = this._getParentTrackID(hdlr_atoms[i]);
 
-          return ret;
+            if (!(hdlr_atoms[i].model.data.type in ret))
+                ret[hdlr_atoms[i].model.data.type] = [];
+
+            ret[hdlr_atoms[i].model.data.type].push(trackID);
+
+            ret.total++;
+        }
+
+        return ret;
     }
 
-    getVideoCodecStr() {
+    getVideoCodecStr(trackID = -1) {
         let ret = "";
         const self = this;
 
         //avc1.[PROFILE in Hex][PROFILE compact][Level in HEX]
         //avc1.42 C0 0D
 
+        if (trackID < 0)
+            trackID = this.getDefaultVideoTrackID();
+
         let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
             if (node.model.type === enAtomNames.STSD) {
-                if (self._getParentTrackType(node) === enTrackTypes.VIDEO.type) {
+                if ((self._getParentTrackType(node) === enTrackTypes.VIDEO.type) && (self._getParentTrackID(node) === trackID)){
                     ret = true;
                 }
             }
@@ -73,14 +96,17 @@ class mp4AtomTree {
         return ret;
     }
 
-    getVideoTimescale() {
+    getTimescale(trackID = -1) {
         let ret = -1;
         const self = this;
+
+        if (trackID < 0)
+            trackID = this.getDefaultVideoTrackID();
 
         let mdhd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
             if (node.model.type === enAtomNames.MDHD) {
-                if (self._getParentTrackType(node) === enTrackTypes.VIDEO.type) {
+                if (self._getParentTrackID(node) === trackID) {
                     ret = true;
                 }
             }
@@ -93,6 +119,28 @@ class mp4AtomTree {
         }
 
         return ret;
+    }
+
+    getFragmentbaseTrackID() {
+        //TODO: This is NOT working the MOOF contains all streams (Video + audio), and the data positions are inside moof
+        // The MDAT atom contains all streams
+
+        let dur_tb = -1;
+
+        let tfhd_nodes = this.atom_data_tree_root.all(function (node) {
+            let ret = false;
+            if (node.model.type === enAtomNames.TFHD) {
+                ret = true;
+            }
+
+            return ret;
+        });
+
+        if (tfhd_nodes.length > 0) {
+            dur_tb = tfhd_nodes[0].model.data.track_ID;
+        }
+
+        return dur_tb;
     }
 
     getFragmentbaseMediaDecodeTime() {
@@ -206,6 +254,31 @@ class mp4AtomTree {
                     let mdia_child = curr_node.children[child_elem];
                     if (mdia_child.model.type === enAtomNames.HDLR) //Return track type
                         return mdia_child.model.data.type;
+                }
+            }
+
+            n--;
+        }
+
+        return ret;
+    }
+
+    _getParentTrackID(node) {
+        let ret = -1;
+
+        let node_path = node.getPath();
+
+        let n = node_path.length - 1;
+        while ((n >= 0) && (ret < 0)) {
+            let curr_node = node_path[n];
+
+            //Find TRAK parent
+            if (curr_node.model.type === enAtomNames.TRAK) {
+                //Get TRAK childs
+                for (let child_elem in curr_node.children) {
+                    let trak_child = curr_node.children[child_elem];
+                    if (trak_child.model.type === enAtomNames.TKHD) //Return track type
+                        ret = trak_child.model.data.track_ID;
                 }
             }
 

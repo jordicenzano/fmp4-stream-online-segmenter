@@ -60,7 +60,7 @@ const server = net.createServer(function(socket) {
     let segmenter = new dashGenerator.fmp4DashGenerator(true, base_path, chunk_base_filename, target_dur_s, manifest_type);
 
     //Add chunk listener
-    //TODO: create callback for ech chunk
+    //TODO: create callback for each chunk
     segmenter.setDataCallbacks(this, null, function (data) {
         saveChunklist(out_manifest_file, data);
     });
