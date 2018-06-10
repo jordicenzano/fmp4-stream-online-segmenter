@@ -11856,15 +11856,7 @@ class dashManifest {
 
             mediaPresentationDuration: 0, //"PT0H0M15S"
 
-            traks_data: null,
-
-            video: {
-                id: "video01",
-                mime_type: "video/mp4",
-                codec_str: "",
-                bandwidth: -1,
-                timebase: -1
-            },
+            media: null,
 
             video_chunks: []
         };
@@ -11924,11 +11916,25 @@ class dashManifest {
         this.media_info_chunk_info = this._getChunkInfo(chunk);
         this.moov_data_tree = moov_data_tree;
 
-        //TODO: Get audio data too
+        //Only 1 track supported
 
-        //TODO: Only supported 1 video track for now, this functions retuern data from the default video track if we do not pass trackID
-        this.dash_data.video.codec_str = this.moov_data_tree.getVideoCodecStr();
-        this.dash_data.video.timebase = this.moov_data_tree.getTimescale();
+        if (this.moov_data_tree.isVideo()) {
+            this.dash_data.media = {
+                id: "video01",
+                mime_type: "video/mp4",
+                codec_str: this.moov_data_tree.getVideoCodecStr(),
+                bandwidth: -1,
+                timebase: this.moov_data_tree.getTimescale()
+            };
+        } else if (this.moov_data_tree.isAudio()) {
+            this.dash_data.media = {
+                id: "audio01",
+                mime_type: "audio/mp4",
+                codec_str: this.moov_data_tree.getAudioCodecStr(),
+                bandwidth: -1,
+                timebase: this.moov_data_tree.getTimescale()
+            };
+        }
     }
 
     addVideoChunk(chunk) {
@@ -11941,7 +11947,7 @@ class dashManifest {
         if (this.media_info_chunk_info === null || this.moov_data_tree === null || this.chunks_info.length <= 0) return ret;
 
         const duration_tb = this._calcDuration();
-        const duration_s = duration_tb / this.dash_data.video.timebase;
+        const duration_s = duration_tb / this.dash_data.media.timebase;
         const video_bw = this._caclBW(duration_s);
 
         const chunk_longer_duration_tb = this._getChunkLongerDuration();
@@ -11958,14 +11964,14 @@ class dashManifest {
         const adaptation_set = period0.ele('AdaptationSet');
 
         const representation = adaptation_set.ele('Representation');
-        representation.att('id', this.dash_data.video.id);
-        representation.att('mimeType', this.dash_data.video.mime_type);
-        representation.att('codecs', this.dash_data.video.codec_str);
+        representation.att('id', this.dash_data.media.id);
+        representation.att('mimeType', this.dash_data.media.mime_type);
+        representation.att('codecs', this.dash_data.media.codec_str);
         representation.att('bandwidth', video_bw.toString());
 
         const segment_list = representation.ele('SegmentList');
 
-        segment_list.att('timescale', this.dash_data.video.timebase);
+        segment_list.att('timescale', this.dash_data.media.timebase);
         segment_list.att('duration', chunk_longer_duration_tb);
         const segment_list_ini = segment_list.ele('Initialization');
 
@@ -12022,11 +12028,6 @@ const dashGenerator = require('./fmp4DashGenerator.js');
 
 "use strict";
 
-const enUITracks = {
-    UI_VIDEO: 'video',
-    UI_AUDIO_01: 'audio01'
-};
-
 function checkFileAPI() {
     // Check for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -12071,55 +12072,24 @@ function manifestGeneratorBrowser(is_url, source, target_duration, final_callbac
 }
 
 function onFileSelectHandle(evt) {
-    let elememt_src_name = null;
-    let elememt_dst_name = null;
+    let is_url = false;
 
-    if (this.ui_track_type === enUITracks.UI_VIDEO) {
-        elememt_src_name = 'input-video-file';
-        elememt_dst_name = 'input-video-file-label';
+    let source = document.getElementById('input-ts-file').files[0];
 
-        //Enable process
-        document.getElementById('input-process').removeAttribute('disabled');
-    } else if (this.ui_track_type === enUITracks.UI_AUDIO_01) {
-        elememt_src_name = 'input-audio-file';
-        elememt_dst_name = 'input-audio-file-label';
-    }
+    //Show file name
+    if (source !== null) document.getElementById('input-ts-file-label').value = source.name;
 
-    if (elememt_src_name !== null && elememt_dst_name !== null) {
-        let source = document.getElementById(elememt_src_name).files[0];
-
-        //Show file name
-        if (source !== null) document.getElementById(elememt_dst_name).value = source.name;
-    }
+    startfmp4WebProcess(is_url, source);
 }
 
-function onProcessClick() {
-    let video_is_url = false;
-    let video_source = null;
-    let audio_is_url = false;
-    let audio_source = null;
+function onURLProcessClick() {
+    let is_url = true;
+    let source = document.getElementById('input-ts-url').value;
 
-    //Get video
-    if (document.getElementById('input-video-file-local').checked === true) {
-        video_is_url = false;
-        video_source = document.getElementById('input-video-file').files[0];
-    } else if (document.getElementById('input-video-file-url').checked === true) {
-        video_is_url = true;
-        video_source = document.getElementById('input-video-url').value;
-    }
+    //Remove file value
+    document.getElementById('input-ts-file-label').value = "";
 
-    //Get audio
-    if (document.getElementById('input-audio-file-local').checked === true) {
-        audio_is_url = false;
-        audio_source = document.getElementById('input-audio-file').files[0];
-    } else if (document.getElementById('input-audio-file-url').checked === true) {
-        audio_is_url = true;
-        audio_source = document.getElementById('input-audio-url').value;
-    }
-
-    //TODO: Add audio file data
-
-    if (video_source !== null) startfmp4WebProcess(video_is_url, video_source);
+    startfmp4WebProcess(is_url, source);
 }
 
 function startfmp4WebProcess(is_url, source) {
@@ -12235,48 +12205,22 @@ function escapeHtml(unsafe) {
 }
 
 function onFileSourceChange() {
-    let element_chk_local_name = null;
-    let element_chk_url_name = null;
-    let element_file_name = null;
-    let element_url_name = null;
-
-    if (this.ui_track_type === enUITracks.UI_VIDEO) {
-        element_chk_local_name = 'input-video-file-local';
-        element_chk_url_name = 'input-video-file-url';
-        element_file_name = 'input-video-file-grp';
-        element_url_name = 'input-video-url-grp';
-    } else if (this.ui_track_type === enUITracks.UI_AUDIO_01) {
-        element_chk_local_name = 'input-audio-file-local';
-        element_chk_url_name = 'input-audio-file-url';
-        element_file_name = 'input-audio-file-grp';
-        element_url_name = 'input-audio-url-grp';
-    }
-
-    if (element_chk_local_name !== null && element_chk_url_name !== null && element_file_name !== null && element_url_name !== null) {
-        if (document.getElementById(element_chk_local_name).checked === true) {
-            document.getElementById(element_file_name).style.display = "table";
-            document.getElementById(element_url_name).style.display = "none";
-        } else if (document.getElementById(element_chk_url_name).checked === true) {
-            document.getElementById(element_file_name).style.display = "none";
-            document.getElementById(element_url_name).style.display = "block";
-        }
+    if (document.getElementById('input-file-local').checked === true) {
+        document.getElementById('input-file').style.display = "table";
+        document.getElementById('input-url').style.display = "none";
+    } else if (document.getElementById('input-file-url').checked === true) {
+        document.getElementById('input-file').style.display = "none";
+        document.getElementById('input-url').style.display = "block";
     }
 }
 
 //Start execution
 
-document.getElementById('input-video-file').ui_track_type = enUITracks.UI_VIDEO;
-document.getElementById('input-video-file').addEventListener('change', onFileSelectHandle, false);
-document.getElementById('input-audio-file').ui_track_type = enUITracks.UI_AUDIO_01;
-document.getElementById('input-audio-file').addEventListener('change', onFileSelectHandle, false);
+document.getElementById('input-ts-file').addEventListener('change', onFileSelectHandle, false);
 
-document.getElementById('input-video-file-selector').ui_track_type = enUITracks.UI_VIDEO;
-document.getElementById('input-video-file-selector').addEventListener('click', onFileSourceChange, false);
-document.getElementById('input-audio-file-selector').ui_track_type = enUITracks.UI_AUDIO_01;
-document.getElementById('input-audio-file-selector').addEventListener('click', onFileSourceChange, false);
+document.getElementById('input-file-selector').addEventListener('click', onFileSourceChange, false);
 
-document.getElementById('input-process').setAttribute('disabled', true);
-document.getElementById('input-process').addEventListener('click', onProcessClick, false);
+document.getElementById('input-file-url-process').addEventListener('click', onURLProcessClick, false);
 
 checkFileAPI();
 
@@ -12649,10 +12593,7 @@ class fmp4DashGenerator {
 
         if (tracks.total <= 0) throw new extErr.extendedError("No tracks found", true);
 
-        //TODO: Get any track as a timebase. For now video[0] is used
-        if (tracks[enTrackTypes.VIDEO.type].length < 1) throw new extErr.extendedError("We need at least one video track in this version", true);
-
-        if (tracks[enTrackTypes.VIDEO.type].length > 1) throw new extErr.extendedError("More than one video track found. Only 1 video track supported", true);
+        if (tracks.total > 1) throw new extErr.extendedError("More than one track found. Only 1 track supported in this version", true);
     }
 
     _process_data_chunk(data) {
@@ -12978,6 +12919,7 @@ const enAtomNames = {
 };
 
 const enTrackTypes = {
+    ANY: { type: 'ANY' },
     UNKNOWN: { type: 'UNKN' },
     VIDEO: { type: 'vide' },
     AUDIO: { type: 'soun' },
@@ -13228,12 +13170,103 @@ class mp4AtomParser {
             }
         });
 
+        this.esURLString = new binparser().endianess('big').uint8('URLLength').string('type', {
+            encoding: 'ascii',
+            length: "URLLength"
+        });
+
+        this.atom_esds = new binparser() //According to ISO/IEC 14496-1.
+        .endianess('big').uint32('size').string('type', {
+            encoding: 'ascii',
+            length: 4
+        }).uint8('version', { assert: 0 }).array('flags', {
+            type: 'uint8',
+            length: 3,
+            assert: 0
+        }).uint8('ESDescriptor', { assert: 0x03 }).uint8('ESDescriptorExt01').uint8('ESDescriptorExt02').uint8('ESDescriptorExt03').uint8('ESDescriptorExtLength').uint16('ESid').bit1('streamDependenceFlag').bit1('URLFlag').bit1('OCRstreamFlag').bit5('streamPriority').choice('', {
+            tag: 'streamDependenceFlag',
+            defaultChoice: this.skip,
+            choices: {
+                1: new binparser().endianess('big').uint16('dependsOnESID')
+            }
+        }).choice('', {
+            tag: 'URLFlag',
+            defaultChoice: this.skip,
+            choices: {
+                1: this.esURLString
+            }
+        }).choice('', {
+            tag: 'OCRstreamFlag',
+            defaultChoice: this.skip,
+            choices: {
+                1: new binparser().endianess('big').uint16('OCRESId')
+            }
+        }).uint8('DecoderConfigDescriptor', { assert: 0x04 }).uint8('DecoderConfigDescriptorExt01').uint8('DecoderConfigDescriptorExt02').uint8('DecoderConfigDescriptorExt03').uint8('DecoderConfigDescriptorLength').uint8('objectTypeIndication') //In this case indicates audio type, see ISO 14496-1
+        .bit6('streamType') // = 5 is audio stream
+        .bit1('upStream').bit1('reserved100', { assert: 1 }).array('bufferSizeDB', {
+            type: 'uint8',
+            length: 3,
+            formatter: function (arr) {
+                return arr[0] * Math.pow(2, 16) + arr[1] * Math.pow(2, 8) + arr[2];
+            }
+        }).uint32('maxBitrate').uint32('avgBitrate').uint8('AudioSpecificDecoderConfigDescriptor', { assert: 0x05 }).uint8('AudioSpecificDecoderConfigDescriptorExt01').uint8('AudioSpecificDecoderConfigDescriptorExt02').uint8('AudioSpecificDecoderConfigDescriptorExt03').uint8('AudioSpecificDecoderConfigDescriptorLength').bit5('ObjectType')
+        //TODO: BUG in binary parser skip is byte aligned, object types >=32 NOT allowed in this implementation
+        /*
+        .choice('', {
+            tag: 'ObjectType',
+            defaultChoice: this.skip,
+            choices: {
+                31: new binparser().endianess('big').bit6('ObjectTypeExt', {formatter: function (n) { return n + 32}})
+            }
+        })*/
+        .bit4('FrequencyIndex')
+        //TODO: BUG in binary parser skip is byte aligned, not statndart sampling freq not allowed in this implementation
+        /*
+        .choice('', {
+            tag: 'FrequencyIndex',
+            defaultChoice: this.skip,
+            choices: {
+                15: new binparser().endianess('big').bit24('Frequency')
+            }
+        })*/
+        .bit4('ChannelConfig').bit3('ExtraAlignment');
+
+        this.atom_stsd_audio_sample_entry = new binparser().endianess('big').uint32('size').uint32('format') //We need to read as a number to make the choice
+        .array('reserved100', {
+            type: 'uint8',
+            length: 6,
+            assert: 0
+        }).uint16('data_reference_index').array('pre_defined100', {
+            type: 'int32be',
+            length: 2,
+            assert: 0
+        }).uint16('channelcount').uint16('samplesize').uint16('pre_defined101', { assert: 0 }).uint16('reserved101', { assert: 0 }).uint32('samplerate', {
+            formatter: function (num) {
+                return num >> 16 & 0xFFFF;
+            }
+        }).choice('codec_data', {
+            tag: 'format',
+            defaultChoice: this.stop_parse,
+            choices: {
+                1836069985: this.atom_esds //1836069985 = 0x6D703461 = mp4a
+            }
+        });
+
         this.atom_stsd_video = new binparser().endianess('big').uint8('version', { assert: 0 }).array('flags', {
             type: 'uint8',
             length: 3,
             assert: 0
         }).uint32('entry_count').array('VisualSampleEntry', {
             type: this.atom_stsd_video_sample_entry,
+            length: 'entry_count'
+        });
+
+        this.atom_stsd_audio = new binparser().endianess('big').uint8('version', { assert: 0 }).array('flags', {
+            type: 'uint8',
+            length: 3,
+            assert: 0
+        }).uint32('entry_count').array('AudioSampleEntry', {
+            type: this.atom_stsd_audio_sample_entry,
             length: 'entry_count'
         });
 
@@ -13334,7 +13367,8 @@ class mp4AtomParser {
             TFHD: { type: enAtomNames.TFHD, is_container: false, parser: this.atom_tfhd },
             TFDT: { type: enAtomNames.TFDT, is_container: false, parser: this.atom_tfdt },
             TRUN: { type: enAtomNames.TRUN, is_container: false, parser: this.atom_trun },
-            STSD: { type: enAtomNames.STSD, is_container: false, parser: [{ [enTrackTypes.VIDEO.type]: this.atom_stsd_video }] },
+            STSD: { type: enAtomNames.STSD, is_container: false, parser: [{ [enTrackTypes.VIDEO.type]: this.atom_stsd_video }, { [enTrackTypes.AUDIO.type]: this.atom_stsd_audio }]
+            },
 
             getParser(type, track_type) {
                 for (let prop in this) {
@@ -13398,12 +13432,45 @@ class mp4AtomTree {
         return this.atom_data_tree_root;
     }
 
-    getDefaultVideoTrackID() {
+    getDefaultTrackID(type = enTrackTypes.ANY.type) {
         let ret = -1;
 
         const tracks_data = this.getTracksIds();
 
-        if (enTrackTypes.VIDEO.type in tracks_data && tracks_data[enTrackTypes.VIDEO.type].length > 0) ret = tracks_data[enTrackTypes.VIDEO.type][0];
+        if (type === enTrackTypes.ANY.type) {
+            if (tracks_data.total > 0) {
+
+                const mappedTypes = Object.keys(enTrackTypes).map(function (item_name) {
+                    return enTrackTypes[item_name].type;
+                });
+                let i = 0;
+                while (ret < 0 && i < mappedTypes.length) {
+                    const curr_type = mappedTypes[i];
+
+                    if (curr_type in tracks_data && tracks_data[curr_type].length > 0) ret = tracks_data[curr_type][0];
+
+                    i++;
+                }
+            }
+        } else {
+            if (type in tracks_data && tracks_data[type].length > 0) ret = tracks_data[type][0];
+        }
+
+        return ret;
+    }
+
+    isVideo() {
+        let ret = false;
+
+        if (this.getDefaultTrackID(enTrackTypes.VIDEO.type) >= 0) ret = true;
+
+        return ret;
+    }
+
+    isAudio() {
+        let ret = false;
+
+        if (this.getDefaultTrackID(enTrackTypes.AUDIO.type) >= 0) ret = true;
 
         return ret;
     }
@@ -13437,7 +13504,7 @@ class mp4AtomTree {
         //avc1.[PROFILE in Hex][PROFILE compact][Level in HEX]
         //avc1.42 C0 0D
 
-        if (trackID < 0) trackID = this.getDefaultVideoTrackID();
+        if (trackID < 0) trackID = this.getDefaultTrackID(enTrackTypes.VIDEO.type);
 
         let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
@@ -13469,11 +13536,55 @@ class mp4AtomTree {
         return ret;
     }
 
+    getAudioCodecStr(trackID = -1) {
+        let ret = "";
+        const self = this;
+
+        //mp4a.[ObjectTypeIndication in Hex][Level (audio object type in Hex]
+        //mp4a.40.2
+
+        if (trackID < 0) trackID = this.getDefaultTrackID(enTrackTypes.AUDIO.type);
+
+        let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
+            let ret = false;
+            if (node.model.type === enAtomNames.STSD) {
+                if (self._getParentTrackType(node) === enTrackTypes.AUDIO.type && self._getParentTrackID(node) === trackID) {
+                    ret = true;
+                }
+            }
+
+            return ret;
+        });
+
+        if (stsd_video_nodes.length > 0) {
+            if (stsd_video_nodes[0].model.data.entry_count > 0) {
+                const codec_entry = stsd_video_nodes[0].model.data.AudioSampleEntry[0];
+
+                if ("format" in codec_entry) {
+                    let codec_format_text = this._hex2a(codec_entry.format.toString(16));
+
+                    if ("codec_data" in codec_entry) {
+                        if ("objectTypeIndication" in codec_entry.codec_data) {
+                            const objectTypeIndication = codec_entry.codec_data.objectTypeIndication;
+                            if ("ObjectType" in codec_entry.codec_data) {
+                                const ObjectType = codec_entry.codec_data.ObjectType;
+
+                                ret = codec_format_text + "." + objectTypeIndication.toString(16).toUpperCase() + "." + ObjectType.toString(16).toUpperCase();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
     getTimescale(trackID = -1) {
         let ret = -1;
         const self = this;
 
-        if (trackID < 0) trackID = this.getDefaultVideoTrackID();
+        if (trackID < 0) trackID = this.getDefaultTrackID();
 
         let mdhd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;

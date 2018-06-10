@@ -37,9 +37,9 @@
 <div class="jumbotron">
     <div class="container">
         <h1>DASH manifest generator</h1>
-        <p>This is a tool that allows you to create an DASH manifest from fmp4 file[s]</p>
+        <p>This is a tool that allows you to create an DASH manifest from any fmp4 file</p>
         <p>All the process is done inside your browser, so your fmp4 files are NOT uploaded anywhere making segmentation process fast and secure</p>
-        <p>We use byte ranges, so you can use the original files and the generated manifests to deliver DASH through a webserver</p>
+        <p>We use byte ranges, so you can use the generated manifests to deliver DASH</p>
     </div>
 </div>
 <div class="container">
@@ -60,60 +60,26 @@
         </select>
     </div>
 
-    <ul class="list-group">
+    <div class="btn-group" id="input-file-selector">
+        <label class="radio-inline"><input id="input-file-local" type="radio" name="optradio" checked>File</label>
+        <label class="radio-inline"><input id="input-file-url" type="radio" name="optradio">URL (be careful with CORS)</label>
+    </div>
 
-        <li class="list-group-item">
-            <h4>Video (required)</h4>
-            <div class="btn-group" id="input-video-file-selector">
-                <label class="radio-inline"><input id="input-video-file-local" type="radio" name="optradiovideo" checked>File</label>
-                <label class="radio-inline"><input id="input-video-file-url" type="radio" name="optradiovideo">URL (be careful with CORS)</label>
-            </div>
+    <!-- Just add simple space -->
+    <div class="col-xs-12" style="height:8px;"></div>
 
-            <!-- Just add simple space -->
-            <div class="col-xs-12" style="height:8px;"></div>
-
-            <div class="input-group" id="input-video-file-grp">
-                <label class="input-group-btn">
-                    <span class="btn btn-primary">
-                        Choose video fmp4 file &hellip; <input id="input-video-file" accept=".mp4" type="file" style="display: none;">
-                    </span>
-                </label>
-                <input id="input-video-file-label" type="text" class="form-control" readonly>
-            </div>
-            <div class="form-group" id="input-video-url-grp" style="display:none;">
-                <input type="text" class="form-control" id="input-video-url" placeholder="https://myserver.com/path/video-file.fmp4">
-            </div>
-        </li>
-
-        <li class="list-group-item">
-            <h4>Audio</h4>
-            <div class="btn-group" id="input-audio-file-selector">
-                <label class="radio-inline"><input id="input-audio-file-local" type="radio" name="optradioaudio" checked>File</label>
-                <label class="radio-inline"><input id="input-audio-file-url" type="radio" name="optradioaudio">URL (be careful with CORS)</label>
-            </div>
-
-            <!-- Just add simple space -->
-            <div class="col-xs-12" style="height:8px;"></div>
-
-            <div class="input-group" id="input-audio-file-grp">
-                <label class="input-group-btn">
-                    <span class="btn btn-primary">
-                        Choose audio fmp4 file &hellip; <input id="input-audio-file" accept=".mp4" type="file" style="display: none;">
-                    </span>
-                </label>
-                <input id="input-audio-file-label" type="text" class="form-control" readonly>
-            </div>
-            <div class="form-group" id="input-audio-url-grp" style="display:none;">
-                <input type="text" class="form-control" id="input-audio-url" placeholder="https://myserver.com/path/audio-file.fmp4">
-            </div>
-        </li>
-
-        <li class="list-group-item">
-            <div class="text-right">
-            <button type="button" class="btn btn-primary" id="input-process">Process</button>
-            </div>
-        </li>
-    </ul>
+    <div class="input-group" id="input-file">
+        <label class="input-group-btn">
+            <span class="btn btn-primary">
+                Choose fmp4 file &hellip; <input id="input-ts-file" accept=".mp4" type="file" style="display: none;">
+            </span>
+        </label>
+        <input id="input-ts-file-label" type="text" class="form-control" readonly>
+    </div>
+    <div class="form-group" id="input-url" style="display:none;">
+        <input type="text" class="form-control" id="input-ts-url" placeholder="https://myserver.com/path/file.fmp4">
+        <button type="button" class="btn btn-primary" id="input-file-url-process">Process</button>
+    </div>
 </div>
 
 <!-- Just add simple space -->
