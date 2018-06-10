@@ -174,12 +174,6 @@ class fmp4DashGenerator {
 
     _process_data_chunk(data) {
 
-        //TODO:
-        // Idea share moov between video / audio files (probably will NOT work)
-        // Create N ini files (1 video + N Audios)
-        // Select what chunk belongs video or audio based in trackID
-        // We need 2 different chunk video / audio. Also save the chunk when it is decoded (except mdat)
-
         if (this.current_chunk.chunk_data === null) {
             this._createNewChunk(enChunkType.INIT);
             this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, 0);
