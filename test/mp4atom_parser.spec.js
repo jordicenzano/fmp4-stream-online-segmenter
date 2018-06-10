@@ -9,8 +9,6 @@ const moduleDir = __dirname;
 
 describe('mp4atom_parser', function() {
 
-    let input_av_vod_file_name = path.join(moduleDir,'fixtures/sourceAV_15s_fmp4.mp4');
-
     describe('parse moov atom and moof atoms from fpm4 video file', function () {
         let input_v_vod_file_name = path.join(moduleDir,'fixtures/source_15s_fmp4.mp4');
 
@@ -1764,9 +1762,9 @@ describe('mp4atom_parser', function() {
             readFileStream.on("end", function() {
                 segmenter.processDataEnd(function (err, data) {
 
-                    assert.deepEqual(moov_data_tree_model, results_moov_model, "MOOV parsing results are different")
+                    assert.deepEqual(moov_data_tree_model, results_moov_model, "MOOV parsing results are different");
 
-                    assert.deepEqual(moof_data_tree_model, results_moof_model, "MOOV parsing results are different")
+                    assert.deepEqual(moof_data_tree_model, results_moof_model, "MOOF (fragments) parsing results are different");
 
                     done();
                 });
@@ -2012,7 +2010,7 @@ describe('mp4atom_parser', function() {
                                                                 "codec_data": {
                                                                     "size": 46,
                                                                     "format": "avcC",
-                                                                    "codec_ini": Buffer.from([
+                                                                    "codec_ini": [
                                                                         1,
                                                                         66,
                                                                         192,
@@ -2051,7 +2049,7 @@ describe('mp4atom_parser', function() {
                                                                         206,
                                                                         60,
                                                                         128
-                                                                    ])
+                                                                    ]
                                                                 }
                                                             }
                                                         ]
@@ -2222,7 +2220,80 @@ describe('mp4atom_parser', function() {
                                                     "type": "stsd",
                                                     "start_pos_rel": 858,
                                                     "start_pos": 858,
-                                                    "data": {}
+                                                    "data": {
+                                                        "version": 0,
+                                                        "flags": [
+                                                            0,
+                                                            0,
+                                                            0
+                                                        ],
+                                                        "entry_count": 1,
+                                                        "AudioSampleEntry": [
+                                                            {
+                                                                "size": 87,
+                                                                "format": 1836069985,
+                                                                "reserved100": [
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0
+                                                                ],
+                                                                "data_reference_index": 1,
+                                                                "pre_defined100": [
+                                                                    0,
+                                                                    0
+                                                                ],
+                                                                "channelcount": 2,
+                                                                "samplesize": 16,
+                                                                "pre_defined101": 0,
+                                                                "reserved101": 0,
+                                                                "samplerate": 44100,
+                                                                "codec_data": {
+                                                                    "size": 51,
+                                                                    "type": "esds",
+                                                                    "version": 0,
+                                                                    "flags": [
+                                                                        0,
+                                                                        0,
+                                                                        0
+                                                                    ],
+                                                                    "ESDescriptor": 3,
+                                                                    "ESDescriptorExt01": 128,
+                                                                    "ESDescriptorExt02": 128,
+                                                                    "ESDescriptorExt03": 128,
+                                                                    "ESDescriptorExtLength": 34,
+                                                                    "ESid": 2,
+                                                                    "streamDependenceFlag": 0,
+                                                                    "URLFlag": 0,
+                                                                    "OCRstreamFlag": 0,
+                                                                    "streamPriority": 0,
+                                                                    "DecoderConfigDescriptor": 4,
+                                                                    "DecoderConfigDescriptorExt01": 128,
+                                                                    "DecoderConfigDescriptorExt02": 128,
+                                                                    "DecoderConfigDescriptorExt03": 128,
+                                                                    "DecoderConfigDescriptorLength": 20,
+                                                                    "objectTypeIndication": 64,
+                                                                    "streamType": 5,
+                                                                    "upStream": 0,
+                                                                    "reserved100": 1,
+                                                                    "bufferSizeDB": 0,
+                                                                    "maxBitrate": 96000,
+                                                                    "avgBitrate": 0,
+                                                                    "AudioSpecificDecoderConfigDescriptor": 5,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt01": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt02": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt03": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorLength": 2,
+                                                                    "ObjectType": 2,
+                                                                    "FrequencyIndex": 4,
+                                                                    "ChannelConfig": 1,
+                                                                    "ExtraAlignment": 0
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
                                                 },
                                                 {
                                                     "size": 16,
@@ -2276,7 +2347,6 @@ describe('mp4atom_parser', function() {
                 }
             ]
         };
-        const results_moof_model = []; //TODO: add moof with audio
 
         it('parse moov atom and check results', function (done) {
 
@@ -2305,7 +2375,7 @@ describe('mp4atom_parser', function() {
                 segmenter.processDataChunk(ts_packet_chunk, function (err) {
                     //TODO: For now only accepts video
                     //TODO: Modify this test
-                    assert.equal(err.message, "Number of tracks found != 1. Only 1 video track is allowed in this version");
+                    assert.equal(err.message, "More than one track found. Only 1 track supported in this version");
 
                     if (err) {
                         readFileStream.destroy(); //Is error so cancel process
@@ -2321,7 +2391,455 @@ describe('mp4atom_parser', function() {
             readFileStream.on("end", function() {
                 segmenter.processDataEnd(function (err, data) {
 
+                    //Never reaches this point
+
+                    done();
+                });
+            });
+        });
+    });
+
+    describe('parse moov atom from fpm4 audio file', function () {
+        let input_a_vod_file_name = path.join(moduleDir,'fixtures/source_audio_15s_fmp4.mp4');
+
+        //NOTE: The buffer needs to be manually modified to be able to do a deepEqual comparison
+        const results_moov_model = {
+            "size": 678,
+            "type": "moov",
+            "start_pos_rel": 0,
+            "start_pos": 0,
+            "data": {},
+            "children": [
+                {
+                    "size": 108,
+                    "type": "mvhd",
+                    "start_pos_rel": 8,
+                    "start_pos": 8,
+                    "data": {
+                        "version": 0,
+                        "flags": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "creation_time": 0,
+                        "modification_time": 0,
+                        "timescale": 1000,
+                        "duration": 0,
+                        "rate": 1,
+                        "volume": 1,
+                        "reserved100": 0,
+                        "reserved101": [
+                            0,
+                            0
+                        ],
+                        "matrix": [
+                            65536,
+                            0,
+                            0,
+                            0,
+                            65536,
+                            0,
+                            0,
+                            0,
+                            1073741824
+                        ],
+                        "reserved2": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        ],
+                        "next_track_ID": 2
+                    }
+                },
+                {
+                    "size": 424,
+                    "type": "trak",
+                    "start_pos_rel": 116,
+                    "start_pos": 116,
+                    "data": {},
+                    "children": [
+                        {
+                            "size": 92,
+                            "type": "tkhd",
+                            "start_pos_rel": 124,
+                            "start_pos": 124,
+                            "data": {
+                                "version": 0,
+                                "flags": [
+                                    0,
+                                    0,
+                                    3
+                                ],
+                                "creation_time": 0,
+                                "modification_time": 0,
+                                "track_ID": 1,
+                                "reserved000": 0,
+                                "duration": 0,
+                                "reserved100": [
+                                    0,
+                                    0
+                                ],
+                                "layer": 0,
+                                "alternate_group": 1,
+                                "volume": 1,
+                                "reserved101": 0,
+                                "matrix": [
+                                    65536,
+                                    0,
+                                    0,
+                                    0,
+                                    65536,
+                                    0,
+                                    0,
+                                    0,
+                                    1073741824
+                                ],
+                                "width": 0,
+                                "height": 0
+                            }
+                        },
+                        {
+                            "size": 324,
+                            "type": "mdia",
+                            "start_pos_rel": 216,
+                            "start_pos": 216,
+                            "data": {},
+                            "children": [
+                                {
+                                    "size": 32,
+                                    "type": "mdhd",
+                                    "start_pos_rel": 224,
+                                    "start_pos": 224,
+                                    "data": {
+                                        "version": 0,
+                                        "flags": [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                                        "creation_time": 0,
+                                        "modification_time": 0,
+                                        "timescale": 44100,
+                                        "duration": 0,
+                                        "language": 21956,
+                                        "reserved100": 0
+                                    }
+                                },
+                                {
+                                    "size": 45,
+                                    "type": "hdlr",
+                                    "start_pos_rel": 256,
+                                    "start_pos": 256,
+                                    "data": {
+                                        "version": 0,
+                                        "flags": [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                                        "pre_defined": 0,
+                                        "type": "soun",
+                                        "reserved100": [
+                                            0,
+                                            0,
+                                            0
+                                        ],
+                                        "name": "SoundHandler"
+                                    }
+                                },
+                                {
+                                    "size": 239,
+                                    "type": "minf",
+                                    "start_pos_rel": 301,
+                                    "start_pos": 301,
+                                    "data": {},
+                                    "children": [
+                                        {
+                                            "size": 16,
+                                            "type": "smhd",
+                                            "start_pos_rel": 309,
+                                            "start_pos": 309,
+                                            "data": {}
+                                        },
+                                        {
+                                            "size": 36,
+                                            "type": "dinf",
+                                            "start_pos_rel": 325,
+                                            "start_pos": 325,
+                                            "data": {}
+                                        },
+                                        {
+                                            "size": 179,
+                                            "type": "stbl",
+                                            "start_pos_rel": 361,
+                                            "start_pos": 361,
+                                            "data": {},
+                                            "children": [
+                                                {
+                                                    "size": 103,
+                                                    "type": "stsd",
+                                                    "start_pos_rel": 369,
+                                                    "start_pos": 369,
+                                                    "data": {
+                                                        "version": 0,
+                                                        "flags": [
+                                                            0,
+                                                            0,
+                                                            0
+                                                        ],
+                                                        "entry_count": 1,
+                                                        "AudioSampleEntry": [
+                                                            {
+                                                                "size": 87,
+                                                                "format": 1836069985,
+                                                                "reserved100": [
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0
+                                                                ],
+                                                                "data_reference_index": 1,
+                                                                "pre_defined100": [
+                                                                    0,
+                                                                    0
+                                                                ],
+                                                                "channelcount": 2,
+                                                                "samplesize": 16,
+                                                                "pre_defined101": 0,
+                                                                "reserved101": 0,
+                                                                "samplerate": 44100,
+                                                                "codec_data": {
+                                                                    "size": 51,
+                                                                    "type": "esds",
+                                                                    "version": 0,
+                                                                    "flags": [
+                                                                        0,
+                                                                        0,
+                                                                        0
+                                                                    ],
+                                                                    "ESDescriptor": 3,
+                                                                    "ESDescriptorExt01": 128,
+                                                                    "ESDescriptorExt02": 128,
+                                                                    "ESDescriptorExt03": 128,
+                                                                    "ESDescriptorExtLength": 34,
+                                                                    "ESid": 1,
+                                                                    "streamDependenceFlag": 0,
+                                                                    "URLFlag": 0,
+                                                                    "OCRstreamFlag": 0,
+                                                                    "streamPriority": 0,
+                                                                    "DecoderConfigDescriptor": 4,
+                                                                    "DecoderConfigDescriptorExt01": 128,
+                                                                    "DecoderConfigDescriptorExt02": 128,
+                                                                    "DecoderConfigDescriptorExt03": 128,
+                                                                    "DecoderConfigDescriptorLength": 20,
+                                                                    "objectTypeIndication": 64,
+                                                                    "streamType": 5,
+                                                                    "upStream": 0,
+                                                                    "reserved100": 1,
+                                                                    "bufferSizeDB": 0,
+                                                                    "maxBitrate": 96000,
+                                                                    "avgBitrate": 0,
+                                                                    "AudioSpecificDecoderConfigDescriptor": 5,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt01": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt02": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorExt03": 128,
+                                                                    "AudioSpecificDecoderConfigDescriptorLength": 2,
+                                                                    "ObjectType": 2,
+                                                                    "FrequencyIndex": 4,
+                                                                    "ChannelConfig": 1,
+                                                                    "ExtraAlignment": 0
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "size": 16,
+                                                    "type": "stts",
+                                                    "start_pos_rel": 472,
+                                                    "start_pos": 472,
+                                                    "data": {}
+                                                },
+                                                {
+                                                    "size": 16,
+                                                    "type": "stsc",
+                                                    "start_pos_rel": 488,
+                                                    "start_pos": 488,
+                                                    "data": {}
+                                                },
+                                                {
+                                                    "size": 20,
+                                                    "type": "stsz",
+                                                    "start_pos_rel": 504,
+                                                    "start_pos": 504,
+                                                    "data": {}
+                                                },
+                                                {
+                                                    "size": 16,
+                                                    "type": "stco",
+                                                    "start_pos_rel": 524,
+                                                    "start_pos": 524,
+                                                    "data": {}
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "size": 40,
+                    "type": "mvex",
+                    "start_pos_rel": 540,
+                    "start_pos": 540,
+                    "data": {}
+                },
+                {
+                    "size": 98,
+                    "type": "udta",
+                    "start_pos_rel": 580,
+                    "start_pos": 580,
+                    "data": {}
+                }
+            ]
+        };
+        const results_moof_model = [
+            {
+                "size": 5284,
+                "type": "moof",
+                "start_pos_rel": 0,
+                "start_pos": 0,
+                "data": {},
+                "children": [
+                    {
+                        "size": 16,
+                        "type": "mfhd",
+                        "start_pos_rel": 8,
+                        "start_pos": 8,
+                        "data": {
+                            "version": 0,
+                            "flags": [
+                                0,
+                                0,
+                                0
+                            ],
+                            "sequence_number": 1
+                        }
+                    },
+                    {
+                        "size": 5260,
+                        "type": "traf",
+                        "start_pos_rel": 24,
+                        "start_pos": 24,
+                        "data": {},
+                        "children": [
+                            {
+                                "size": 28,
+                                "type": "tfhd",
+                                "start_pos_rel": 32,
+                                "start_pos": 32,
+                                "data": {
+                                    "version": 0,
+                                    "flags": {
+                                        "fl0": 2,
+                                        "fl1": 0,
+                                        "na1": 0,
+                                        "na2": 0,
+                                        "default_sample_flags_present": 1,
+                                        "default_sample_size_present": 1,
+                                        "default_sample_duration_present": 1,
+                                        "na3": 0,
+                                        "sample_description_index_present": 0,
+                                        "base_data_offset_present": 0
+                                    },
+                                    "track_ID": 1,
+                                    "default_sample_duration": 1024,
+                                    "default_sample_size": 278,
+                                    "default_sample_flags": 33554432
+                                }
+                            },
+                            {
+                                "size": 20,
+                                "type": "tfdt",
+                                "start_pos_rel": 60,
+                                "start_pos": 60,
+                                "data": {
+                                    "version": 1,
+                                    "flags": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "baseMediaDecodeTime": 0
+                                }
+                            },
+                            {
+                                "size": 5204,
+                                "type": "trun",
+                                "start_pos_rel": 80,
+                                "start_pos": 80,
+                                "data": {
+                                    "version": 0,
+                                    "flags": [
+                                        0,
+                                        3,
+                                        1
+                                    ],
+                                    "sample_count": 648
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        it('parse moov atom and check results', function (done) {
+
+            let segmenter = new underTest.fmp4DashGenerator(false, "./", path.basename(input_a_vod_file_name));
+            let moov_data_tree_model = null;
+            let moof_data_tree_model = [];
+
+            const process_moov = function (that, moov_data_tree) {
+                moov_data_tree_model = moov_data_tree.model;
+            };
+
+            const process_moof = function (that, moof_data_tree) {
+                moof_data_tree_model.push(moof_data_tree.model);
+            };
+
+            segmenter.setDataCallbacks(null, process_moov, process_moof);
+
+            let readFileStream = new fs.createReadStream(input_a_vod_file_name);
+
+            readFileStream.on("error", function() {
+                assert.fail('error reading the file');
+            });
+
+            readFileStream.on("data", function(ts_packet_chunk) {
+
+                segmenter.processDataChunk(ts_packet_chunk, function (err) {
+                    assert.equal(err, null);
+
+                    if (err)
+                        readFileStream.destroy(); //Is error so cancel process
+                });
+            });
+
+            readFileStream.on("end", function() {
+                segmenter.processDataEnd(function (err, data) {
+
                     assert.deepEqual(moov_data_tree_model, results_moov_model, "MOOV parsing results are different");
+
+                    assert.deepEqual(moof_data_tree_model, results_moof_model, "MOOF (fragments) parsing results are different");
 
                     done();
                 });

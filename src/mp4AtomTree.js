@@ -22,13 +22,49 @@ class mp4AtomTree {
         return this.atom_data_tree_root;
     }
 
-    getDefaultVideoTrackID() {
+    getDefaultTrackID(type = enTrackTypes.ANY.type) {
         let ret = -1;
 
         const tracks_data = this.getTracksIds();
 
-        if ((enTrackTypes.VIDEO.type in tracks_data) && (tracks_data[enTrackTypes.VIDEO.type].length > 0))
-            ret = tracks_data[enTrackTypes.VIDEO.type][0];
+        if (type === enTrackTypes.ANY.type) {
+            if (tracks_data.total > 0) {
+
+                const  mappedTypes = Object.keys(enTrackTypes).map( function (item_name) { return enTrackTypes[item_name].type; });
+                let i = 0;
+                while ((ret < 0) && (i < mappedTypes.length)) {
+                    const curr_type = mappedTypes[i];
+
+                    if ((curr_type in tracks_data) && (tracks_data[curr_type].length > 0))
+                        ret = tracks_data[curr_type][0];
+
+                    i++;
+                }
+            }
+
+        }
+        else {
+            if ((type in tracks_data) && (tracks_data[type].length > 0))
+                ret = tracks_data[type][0];
+        }
+
+        return ret;
+    }
+
+    isVideo() {
+        let ret = false;
+
+        if (this.getDefaultTrackID(enTrackTypes.VIDEO.type) >= 0)
+            ret = true;
+
+        return ret;
+    }
+
+    isAudio() {
+        let ret = false;
+
+        if (this.getDefaultTrackID(enTrackTypes.AUDIO.type) >= 0)
+            ret = true;
 
         return ret;
     }
@@ -64,7 +100,7 @@ class mp4AtomTree {
         //avc1.42 C0 0D
 
         if (trackID < 0)
-            trackID = this.getDefaultVideoTrackID();
+            trackID = this.getDefaultTrackID(enTrackTypes.VIDEO.type);
 
         let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;
@@ -96,12 +132,57 @@ class mp4AtomTree {
         return ret;
     }
 
+    getAudioCodecStr(trackID = -1) {
+        let ret = "";
+        const self = this;
+
+        //mp4a.[ObjectTypeIndication in Hex][Level (audio object type in Hex]
+        //mp4a.40.2
+
+        if (trackID < 0)
+            trackID = this.getDefaultTrackID(enTrackTypes.AUDIO.type);
+
+        let stsd_video_nodes = this.atom_data_tree_root.all(function (node) {
+            let ret = false;
+            if (node.model.type === enAtomNames.STSD) {
+                if ((self._getParentTrackType(node) === enTrackTypes.AUDIO.type) && (self._getParentTrackID(node) === trackID)){
+                    ret = true;
+                }
+            }
+
+            return ret;
+        });
+
+        if (stsd_video_nodes.length > 0) {
+            if (stsd_video_nodes[0].model.data.entry_count > 0) {
+                const codec_entry = stsd_video_nodes[0].model.data.AudioSampleEntry[0];
+
+                if ("format" in codec_entry) {
+                    let codec_format_text = this._hex2a(codec_entry.format.toString(16));
+
+                    if ("codec_data" in codec_entry) {
+                        if ("objectTypeIndication" in codec_entry.codec_data) {
+                            const objectTypeIndication = codec_entry.codec_data.objectTypeIndication;
+                            if ("ObjectType" in codec_entry.codec_data) {
+                                const ObjectType = codec_entry.codec_data.ObjectType;
+
+                                ret = codec_format_text + "." + objectTypeIndication.toString(16).toUpperCase() + "." + ObjectType.toString(16).toUpperCase();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
     getTimescale(trackID = -1) {
         let ret = -1;
         const self = this;
 
         if (trackID < 0)
-            trackID = this.getDefaultVideoTrackID();
+            trackID = this.getDefaultTrackID();
 
         let mdhd_video_nodes = this.atom_data_tree_root.all(function (node) {
             let ret = false;

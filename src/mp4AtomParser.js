@@ -28,6 +28,7 @@ const enAtomNames = {
 };
 
 const enTrackTypes = {
+    ANY: {type: 'ANY'},
     UNKNOWN: {type: 'UNKN'},
     VIDEO: {type: 'vide'},
     AUDIO: {type: 'soun'},
@@ -374,6 +375,137 @@ class mp4AtomParser {
                 }
             });
 
+        this.esURLString = new binparser()
+            .endianess('big')
+            .uint8('URLLength')
+            .string('type', {
+                encoding: 'ascii',
+                length: "URLLength"
+            });
+
+        this.atom_esds = new binparser() //According to ISO/IEC 14496-1.
+            .endianess('big')
+            .uint32('size')
+            .string('type', {
+                encoding: 'ascii',
+                length: 4
+            })
+            .uint8('version', { assert: 0 })
+            .array('flags', {
+                type: 'uint8',
+                length: 3,
+                assert: 0
+            })
+            .uint8('ESDescriptor', { assert: 0x03 })
+            .uint8('ESDescriptorExt01')
+            .uint8('ESDescriptorExt02')
+            .uint8('ESDescriptorExt03')
+            .uint8('ESDescriptorExtLength')
+            .uint16('ESid')
+            .bit1('streamDependenceFlag')
+            .bit1('URLFlag')
+            .bit1('OCRstreamFlag')
+            .bit5('streamPriority')
+            .choice('', {
+                tag: 'streamDependenceFlag',
+                defaultChoice: this.skip,
+                choices: {
+                    1: new binparser().endianess('big').uint16('dependsOnESID')
+                }
+            })
+            .choice('', {
+                tag: 'URLFlag',
+                defaultChoice: this.skip,
+                choices: {
+                    1: this.esURLString
+                }
+            })
+            .choice('', {
+                tag: 'OCRstreamFlag',
+                defaultChoice: this.skip,
+                choices: {
+                    1: new binparser().endianess('big').uint16('OCRESId')
+                }
+            })
+            .uint8('DecoderConfigDescriptor', { assert: 0x04 })
+            .uint8('DecoderConfigDescriptorExt01')
+            .uint8('DecoderConfigDescriptorExt02')
+            .uint8('DecoderConfigDescriptorExt03')
+            .uint8('DecoderConfigDescriptorLength')
+
+            .uint8('objectTypeIndication') //In this case indicates audio type, see ISO 14496-1
+            .bit6('streamType') // = 5 is audio stream
+            .bit1('upStream')
+            .bit1('reserved100', {assert: 1})
+            .array('bufferSizeDB', {
+                type: 'uint8',
+                length: 3,
+                formatter: function(arr) {
+                    return arr[0] * Math.pow(2, 16) + arr[1] * Math.pow(2,  8) + arr[2];
+                }
+            })
+            .uint32('maxBitrate')
+            .uint32('avgBitrate')
+            .uint8('AudioSpecificDecoderConfigDescriptor', { assert: 0x05 })
+            .uint8('AudioSpecificDecoderConfigDescriptorExt01')
+            .uint8('AudioSpecificDecoderConfigDescriptorExt02')
+            .uint8('AudioSpecificDecoderConfigDescriptorExt03')
+            .uint8('AudioSpecificDecoderConfigDescriptorLength')
+            .bit5('ObjectType')
+            //TODO: BUG in binary parser skip is byte aligned, object types >=32 NOT allowed in this implementation
+            /*
+            .choice('', {
+                tag: 'ObjectType',
+                defaultChoice: this.skip,
+                choices: {
+                    31: new binparser().endianess('big').bit6('ObjectTypeExt', {formatter: function (n) { return n + 32}})
+                }
+            })*/
+            .bit4('FrequencyIndex')
+            //TODO: BUG in binary parser skip is byte aligned, not statndart sampling freq not allowed in this implementation
+            /*
+            .choice('', {
+                tag: 'FrequencyIndex',
+                defaultChoice: this.skip,
+                choices: {
+                    15: new binparser().endianess('big').bit24('Frequency')
+                }
+            })*/
+            .bit4('ChannelConfig')
+            .bit3('ExtraAlignment');
+
+        this.atom_stsd_audio_sample_entry = new binparser()
+            .endianess('big')
+            .uint32('size')
+            .uint32('format') //We need to read as a number to make the choice
+            .array('reserved100', {
+                type: 'uint8',
+                length: 6,
+                assert: 0
+            })
+            .uint16('data_reference_index')
+            .array('pre_defined100', {
+                type: 'int32be',
+                length: 2,
+                assert: 0
+            })
+            .uint16('channelcount')
+            .uint16('samplesize')
+            .uint16('pre_defined101', {assert: 0})
+            .uint16('reserved101', {assert: 0})
+            .uint32('samplerate', {
+                formatter: function (num) {
+                    return (num>>16) & 0xFFFF;
+                }
+            })
+            .choice('codec_data', {
+                tag: 'format',
+                defaultChoice: this.stop_parse,
+                choices: {
+                    1836069985: this.atom_esds, //1836069985 = 0x6D703461 = mp4a
+                }
+            });
+
         this.atom_stsd_video = new binparser()
             .endianess('big')
             .uint8('version', { assert: 0 })
@@ -385,6 +517,20 @@ class mp4AtomParser {
             .uint32('entry_count')
             .array('VisualSampleEntry', {
                 type: this.atom_stsd_video_sample_entry,
+                length: 'entry_count'
+            });
+
+        this.atom_stsd_audio = new binparser()
+            .endianess('big')
+            .uint8('version', { assert: 0 })
+            .array('flags', {
+                type: 'uint8',
+                length: 3,
+                assert: 0
+            })
+            .uint32('entry_count')
+            .array('AudioSampleEntry', {
+                type: this.atom_stsd_audio_sample_entry,
                 length: 'entry_count'
             });
 
@@ -530,7 +676,11 @@ class mp4AtomParser {
             TFHD: {type: enAtomNames.TFHD, is_container: false, parser: this.atom_tfhd},
             TFDT: {type: enAtomNames.TFDT, is_container: false, parser: this.atom_tfdt},
             TRUN: {type: enAtomNames.TRUN, is_container: false, parser: this.atom_trun},
-            STSD: {type: enAtomNames.STSD, is_container: false, parser: [{ [enTrackTypes.VIDEO.type]: this.atom_stsd_video }] },
+            STSD: {type: enAtomNames.STSD, is_container: false, parser: [
+                    { [enTrackTypes.VIDEO.type]: this.atom_stsd_video },
+                    { [enTrackTypes.AUDIO.type]: this.atom_stsd_audio }
+                ]
+            },
 
             getParser(type, track_type) {
                 for (let prop in this) {
@@ -539,7 +689,7 @@ class mp4AtomParser {
                         if (Array.isArray(elem.parser)) {
                             for (let i = 0; i < elem.parser.length; i++) {
                                 let parser_elem = elem.parser[i];
-    
+
                                 for (let prop_track in parser_elem) {
                                     if (prop_track === track_type)
                                         return parser_elem[prop_track];

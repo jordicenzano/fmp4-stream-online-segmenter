@@ -40,15 +40,7 @@ class dashManifest {
 
             mediaPresentationDuration: 0,//"PT0H0M15S"
 
-            traks_data: null,
-
-            video: {
-                id: "video01",
-                mime_type: "video/mp4",
-                codec_str: "",
-                bandwidth: -1,
-                timebase: -1
-            },
+            media: null,
 
             video_chunks: []
         };
@@ -108,11 +100,26 @@ class dashManifest {
         this.media_info_chunk_info = this._getChunkInfo(chunk);
         this.moov_data_tree = moov_data_tree;
 
-        //TODO: Get audio data too
+        //Only 1 track supported
 
-        //TODO: Only supported 1 video track for now, this functions retuern data from the default video track if we do not pass trackID
-        this.dash_data.video.codec_str = this.moov_data_tree.getVideoCodecStr();
-        this.dash_data.video.timebase = this.moov_data_tree.getTimescale();
+        if (this.moov_data_tree.isVideo()) {
+            this.dash_data.media = {
+                id: "video01",
+                mime_type: "video/mp4",
+                codec_str: this.moov_data_tree.getVideoCodecStr(),
+                bandwidth: -1,
+                timebase: this.moov_data_tree.getTimescale()
+            };
+        }
+        else if (this.moov_data_tree.isAudio()) {
+            this.dash_data.media = {
+                id: "audio01",
+                mime_type: "audio/mp4",
+                codec_str: this.moov_data_tree.getAudioCodecStr(),
+                bandwidth: -1,
+                timebase: this.moov_data_tree.getTimescale()
+            };
+        }
     }
 
     addVideoChunk (chunk) {
@@ -126,7 +133,7 @@ class dashManifest {
             return ret;
 
         const duration_tb = this._calcDuration();
-        const duration_s = duration_tb / this.dash_data.video.timebase;
+        const duration_s = duration_tb / this.dash_data.media.timebase;
         const video_bw = this._caclBW(duration_s);
 
         const chunk_longer_duration_tb = this._getChunkLongerDuration();
@@ -143,13 +150,14 @@ class dashManifest {
         const adaptation_set = period0.ele('AdaptationSet');
 
         const representation = adaptation_set.ele('Representation');
-        representation.att('id', this.dash_data.video.id);
-        representation.att('mimeType', this.dash_data.video.mime_type);
-        representation.att('codecs', this.dash_data.video.codec_str);
+        representation.att('id', this.dash_data.media.id);
+        representation.att('mimeType', this.dash_data.media.mime_type);
+        representation.att('codecs', this.dash_data.media.codec_str);
         representation.att('bandwidth', video_bw.toString());
 
         const segment_list = representation.ele('SegmentList');
-        segment_list.att('timescale', this.dash_data.video.timebase);
+
+        segment_list.att('timescale', this.dash_data.media.timebase);
         segment_list.att('duration', chunk_longer_duration_tb);
         const segment_list_ini = segment_list.ele('Initialization');
 

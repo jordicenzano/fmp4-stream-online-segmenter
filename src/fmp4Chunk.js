@@ -59,13 +59,13 @@ class fmp4Chunk {
             if (this.is_writing_chunks) {
                 //Create ghost file indicting is growing
                 fs.writeFileSync(this.filename_ghost, "");
+
+                if (this.verbose)
+                    console.log("Creating new chunk file: " + this.filename);
             }
 
             //Create growing file
             this.curr_file = null;
-
-            if (this.verbose)
-                console.log("Created new chunk file: " + this.filename);
         }
     }
 

@@ -11964,6 +11964,7 @@ class dashManifest {
         representation.att('bandwidth', video_bw.toString());
 
         const segment_list = representation.ele('SegmentList');
+
         segment_list.att('timescale', this.dash_data.video.timebase);
         segment_list.att('duration', chunk_longer_duration_tb);
         const segment_list_ini = segment_list.ele('Initialization');
@@ -12021,6 +12022,11 @@ const dashGenerator = require('./fmp4DashGenerator.js');
 
 "use strict";
 
+const enUITracks = {
+    UI_VIDEO: 'video',
+    UI_AUDIO_01: 'audio01'
+};
+
 function checkFileAPI() {
     // Check for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -12065,24 +12071,55 @@ function manifestGeneratorBrowser(is_url, source, target_duration, final_callbac
 }
 
 function onFileSelectHandle(evt) {
-    let is_url = false;
+    let elememt_src_name = null;
+    let elememt_dst_name = null;
 
-    let source = document.getElementById('input-ts-file').files[0];
+    if (this.ui_track_type === enUITracks.UI_VIDEO) {
+        elememt_src_name = 'input-video-file';
+        elememt_dst_name = 'input-video-file-label';
 
-    //Show file name
-    if (source !== null) document.getElementById('input-ts-file-label').value = source.name;
+        //Enable process
+        document.getElementById('input-process').removeAttribute('disabled');
+    } else if (this.ui_track_type === enUITracks.UI_AUDIO_01) {
+        elememt_src_name = 'input-audio-file';
+        elememt_dst_name = 'input-audio-file-label';
+    }
 
-    startfmp4WebProcess(is_url, source);
+    if (elememt_src_name !== null && elememt_dst_name !== null) {
+        let source = document.getElementById(elememt_src_name).files[0];
+
+        //Show file name
+        if (source !== null) document.getElementById(elememt_dst_name).value = source.name;
+    }
 }
 
-function onURLProcessClick() {
-    let is_url = true;
-    let source = document.getElementById('input-ts-url').value;
+function onProcessClick() {
+    let video_is_url = false;
+    let video_source = null;
+    let audio_is_url = false;
+    let audio_source = null;
 
-    //Remove file value
-    document.getElementById('input-ts-file-label').value = "";
+    //Get video
+    if (document.getElementById('input-video-file-local').checked === true) {
+        video_is_url = false;
+        video_source = document.getElementById('input-video-file').files[0];
+    } else if (document.getElementById('input-video-file-url').checked === true) {
+        video_is_url = true;
+        video_source = document.getElementById('input-video-url').value;
+    }
 
-    startfmp4WebProcess(is_url, source);
+    //Get audio
+    if (document.getElementById('input-audio-file-local').checked === true) {
+        audio_is_url = false;
+        audio_source = document.getElementById('input-audio-file').files[0];
+    } else if (document.getElementById('input-audio-file-url').checked === true) {
+        audio_is_url = true;
+        audio_source = document.getElementById('input-audio-url').value;
+    }
+
+    //TODO: Add audio file data
+
+    if (video_source !== null) startfmp4WebProcess(video_is_url, video_source);
 }
 
 function startfmp4WebProcess(is_url, source) {
@@ -12198,22 +12235,48 @@ function escapeHtml(unsafe) {
 }
 
 function onFileSourceChange() {
-    if (document.getElementById('input-file-local').checked === true) {
-        document.getElementById('input-file').style.display = "table";
-        document.getElementById('input-url').style.display = "none";
-    } else if (document.getElementById('input-file-url').checked === true) {
-        document.getElementById('input-file').style.display = "none";
-        document.getElementById('input-url').style.display = "block";
+    let element_chk_local_name = null;
+    let element_chk_url_name = null;
+    let element_file_name = null;
+    let element_url_name = null;
+
+    if (this.ui_track_type === enUITracks.UI_VIDEO) {
+        element_chk_local_name = 'input-video-file-local';
+        element_chk_url_name = 'input-video-file-url';
+        element_file_name = 'input-video-file-grp';
+        element_url_name = 'input-video-url-grp';
+    } else if (this.ui_track_type === enUITracks.UI_AUDIO_01) {
+        element_chk_local_name = 'input-audio-file-local';
+        element_chk_url_name = 'input-audio-file-url';
+        element_file_name = 'input-audio-file-grp';
+        element_url_name = 'input-audio-url-grp';
+    }
+
+    if (element_chk_local_name !== null && element_chk_url_name !== null && element_file_name !== null && element_url_name !== null) {
+        if (document.getElementById(element_chk_local_name).checked === true) {
+            document.getElementById(element_file_name).style.display = "table";
+            document.getElementById(element_url_name).style.display = "none";
+        } else if (document.getElementById(element_chk_url_name).checked === true) {
+            document.getElementById(element_file_name).style.display = "none";
+            document.getElementById(element_url_name).style.display = "block";
+        }
     }
 }
 
 //Start execution
 
-document.getElementById('input-ts-file').addEventListener('change', onFileSelectHandle, false);
+document.getElementById('input-video-file').ui_track_type = enUITracks.UI_VIDEO;
+document.getElementById('input-video-file').addEventListener('change', onFileSelectHandle, false);
+document.getElementById('input-audio-file').ui_track_type = enUITracks.UI_AUDIO_01;
+document.getElementById('input-audio-file').addEventListener('change', onFileSelectHandle, false);
 
-document.getElementById('input-file-selector').addEventListener('click', onFileSourceChange, false);
+document.getElementById('input-video-file-selector').ui_track_type = enUITracks.UI_VIDEO;
+document.getElementById('input-video-file-selector').addEventListener('click', onFileSourceChange, false);
+document.getElementById('input-audio-file-selector').ui_track_type = enUITracks.UI_AUDIO_01;
+document.getElementById('input-audio-file-selector').addEventListener('click', onFileSourceChange, false);
 
-document.getElementById('input-file-url-process').addEventListener('click', onURLProcessClick, false);
+document.getElementById('input-process').setAttribute('disabled', true);
+document.getElementById('input-process').addEventListener('click', onProcessClick, false);
 
 checkFileAPI();
 
@@ -12301,12 +12364,12 @@ class fmp4Chunk {
             if (this.is_writing_chunks) {
                 //Create ghost file indicting is growing
                 fs.writeFileSync(this.filename_ghost, "");
+
+                if (this.verbose) console.log("Creating new chunk file: " + this.filename);
             }
 
             //Create growing file
             this.curr_file = null;
-
-            if (this.verbose) console.log("Created new chunk file: " + this.filename);
         }
     }
 
@@ -12475,7 +12538,7 @@ class fmp4DashGenerator {
 
         this.result_manifest = "";
 
-        this.err_to_return = null;
+        this.fatal_err = null;
 
         //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
         //TODO: implement others as timeline
@@ -12506,11 +12569,16 @@ class fmp4DashGenerator {
     }
 
     processDataChunk(data, callback) {
+
+        if (this.fatal_err !== null) {
+            return callback(this.fatal_err, null);
+        }
+
         try {
             this._process_data_chunk(data);
         } catch (err) {
             if ("isFatal" in err && err.isFatal() === true) {
-                this.err_to_return = err;
+                this.fatal_err = err;
             }
 
             return callback(err);
@@ -12518,6 +12586,11 @@ class fmp4DashGenerator {
     }
 
     processDataEnd(callback) {
+
+        if (this.fatal_err !== null) {
+            return callback(this.fatal_err, null);
+        }
+
         try {
             //Process remaining mp4 data
             this._process_data_finish();
@@ -12526,9 +12599,6 @@ class fmp4DashGenerator {
 
             if (this.verbose) console.log('Manifest:\n' + this.result_manifest);
         } catch (err) {
-            //Return the 1st fatal error
-            if (this.err_to_return !== null) err = this.err_to_return;
-
             return callback(err, null);
         }
 
@@ -12634,7 +12704,7 @@ class fmp4DashGenerator {
                 } else if (currentAtom.getType() === enAtomNames.MOOF) {
                     const moof_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                    //Callback for moof atom
+                    //Callback for moof atom/**/
                     if (this.callback_moof !== null) this.callback_moof(this.callback_data_that, moof_data_tree.getRootNode());
 
                     this.current_chunk.chunk_data.createNewAtom(this.atoms_to_save, this.src_file_offset_abs, moof_data_tree.getFragmentDuration(), moof_data_tree.getFragmentbaseMediaDecodeTime());

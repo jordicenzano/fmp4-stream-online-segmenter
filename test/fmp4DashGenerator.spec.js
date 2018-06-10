@@ -12,6 +12,7 @@ const moduleDir = __dirname;
 describe('fmp4-chunklist-generator', function() {
 
     let input_v_vod_file_name = path.join(moduleDir,'fixtures/source_15s_fmp4.mp4');
+    let input_a_vod_file_name = path.join(moduleDir,'fixtures/source_audio_15s_fmp4.mp4');
     let input_av_vod_file_name = path.join(moduleDir,'fixtures/sourceAV_15s_fmp4.mp4');
     let base_path = moduleDir; //Test dir
     let out_path = path.join(base_path, 'results');
@@ -133,15 +134,15 @@ describe('fmp4-chunklist-generator', function() {
         });
     });
 
-    describe('generate a VOD event chunklist and chunks from video file', function () {
+    describe('generate a VOD event chunklist and chunks from audio file', function () {
 
         it('ffmpeg generated fmp4 - read by big chunks and 4s target dur', function (done) {
-            let chunk_base_filename = 'test_with_chunks_event_';
-            let manifest_filename = path.join(out_path, path.parse(input_v_vod_file_name).name + '_event.mpd');
+            let chunk_base_filename = 'test_audio_with_chunks_event_';
+            let manifest_filename = path.join(out_path, path.parse(input_a_vod_file_name).name + '_event.mpd');
 
-            let segmenter = new underTest.fmp4DashGenerator(true, out_path, chunk_base_filename, 4);
+            let segmenter = new underTest.fmp4DashGenerator(false, "./", path.basename(input_a_vod_file_name), 4, enManifestType.SegmentList);
 
-            let readFileStream = new fs.createReadStream(input_v_vod_file_name);
+            let readFileStream = new fs.createReadStream(input_a_vod_file_name);
 
             readFileStream.on("error", function () {
                 assert.fail('error reading the file');
@@ -160,17 +161,15 @@ describe('fmp4-chunklist-generator', function() {
 
                     //Check manifest
                     assert.equal(data,`<?xml version="1.0" encoding="utf-8"?>
-<MPD type="static" xmlns="urn:mpeg:dash:schema:mpd:2011" minBufferTime="PT1.5S" mediaPresentationDuration="PT15S" profiles="urn:mpeg:dash:profile:isoff-main:2011">
+<MPD type="static" xmlns="urn:mpeg:dash:schema:mpd:2011" minBufferTime="PT1.5S" mediaPresentationDuration="PT15.046530612244897S" profiles="urn:mpeg:dash:profile:isoff-main:2011">
   <BaseURL>./</BaseURL>
   <Period start="PT0S">
     <AdaptationSet>
-      <Representation id="video01" mimeType="video/mp4" codecs="avc1.42C00D" bandwidth="24596">
-        <SegmentList timescale="15360" duration="61440">
-          <Initialization sourceURL="test_with_chunks_event_00000.mp4"/>
-          <SegmentURL media="test_with_chunks_event_00001.mp4"/>
-          <SegmentURL media="test_with_chunks_event_00002.mp4"/>
-          <SegmentURL media="test_with_chunks_event_00003.mp4"/>
-          <SegmentURL media="test_with_chunks_event_00004.mp4"/>
+      <Representation id="audio01" mimeType="audio/mp4" codecs="mp4a.40.2" bandwidth="12357">
+        <SegmentList timescale="44100" duration="663552">
+          <Initialization sourceURL="source_audio_15s_fmp4.mp4" range="0-701"/>
+          <SegmentURL media="source_audio_15s_fmp4.mp4" mediaRange="702-186551"/>
+          <SegmentURL media="source_audio_15s_fmp4.mp4" mediaRange="186552-186618"/>
         </SegmentList>
       </Representation>
     </AdaptationSet>
@@ -180,34 +179,14 @@ describe('fmp4-chunklist-generator', function() {
                     //Save chunklist (for testing purposes)
                     fs.writeFileSync(manifest_filename, data);
 
-                    //Check chunk files
-                    const chunk0_init_filename = path.join(out_path, chunk_base_filename + '00000.mp4');
-                    const chunk1_filename = path.join(out_path, chunk_base_filename + '00001.mp4');
-                    const chunk2_filename = path.join(out_path, chunk_base_filename + '00002.mp4');
-                    const chunk3_filename = path.join(out_path, chunk_base_filename + '00003.mp4');
-                    const chunk4_filename = path.join(out_path, chunk_base_filename + '00004.mp4');
-
-                    assert.equal(fs.existsSync(chunk0_init_filename), true, "File init existence");
-                    assert.equal(fs.existsSync(chunk1_filename), true, "File chunk1 existence");
-                    assert.equal(fs.existsSync(chunk2_filename), true, "File chunk2 existence");
-                    assert.equal(fs.existsSync(chunk3_filename), true, "File chunk3 existence");
-                    assert.equal(fs.existsSync(chunk4_filename), true, "File chunk4 existence");
-
-                    assert.equal(fs.statSync(chunk0_init_filename).size, 743);
-                    assert.equal(fs.statSync(chunk1_filename).size, 69032);
-                    assert.equal(fs.statSync(chunk2_filename).size, 100915);
-                    assert.equal(fs.statSync(chunk3_filename).size, 111313);
-                    assert.equal(fs.statSync(chunk4_filename).size, 87343);
-
                     done();
                 });
             });
         });
     });
 
-    //TODO: add more time line & tests. And add audio
     /*
-    describe('generate a live event chunklist and chunks from video file', function () {
+    describe('generate a VOD event chunklist and chunks from video file', function () {
 
         it('ffmpeg generated fmp4 - read by big chunks', function (done) {
             let chunk_base_filename = 'test_with_chunks_event_';
@@ -408,4 +387,7 @@ describe('fmp4-chunklist-generator', function() {
             });
         });
     });*/
+
+    //TODO: add more time line & tests
+
 });

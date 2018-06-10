@@ -49,7 +49,7 @@ class fmp4DashGenerator {
 
         this.result_manifest = "";
 
-        this.err_to_return = null;
+        this.fatal_err = null;
 
         //TODO: Segment list NOT supported for live. See https://github.com/Dash-Industry-Forum/dash.js/issues/1677
         //TODO: implement others as timeline
@@ -80,12 +80,17 @@ class fmp4DashGenerator {
     }
 
     processDataChunk(data, callback) {
+
+        if (this.fatal_err !== null){
+            return callback(this.fatal_err, null);
+        }
+
         try {
             this._process_data_chunk(data);
         }
         catch (err) {
             if (("isFatal" in err) && (err.isFatal() === true)) {
-                this.err_to_return = err;
+                this.fatal_err = err;
             }
 
             return callback(err);
@@ -93,6 +98,11 @@ class fmp4DashGenerator {
     }
 
     processDataEnd(callback) {
+
+        if (this.fatal_err !== null){
+            return callback(this.fatal_err, null);
+        }
+
         try {
             //Process remaining mp4 data
             this._process_data_finish();
@@ -103,10 +113,6 @@ class fmp4DashGenerator {
                 console.log('Manifest:\n' + this.result_manifest)
         }
         catch (err) {
-            //Return the 1st fatal error
-            if (this.err_to_return !== null)
-                err = this.err_to_return;
-
             return callback(err, null);
         }
 
@@ -162,12 +168,8 @@ class fmp4DashGenerator {
         if (tracks.total <= 0)
             throw new extErr.extendedError("No tracks found", true);
 
-        //TODO: Get any track as a timebase. For now video[0] is used
-        if (tracks[enTrackTypes.VIDEO.type].length < 1)
-            throw new extErr.extendedError("We need at least one video track in this version", true);
-
-        if (tracks[enTrackTypes.VIDEO.type].length > 1)
-            throw new extErr.extendedError("More than one video track found. Only 1 video track supported", true);
+        if (tracks.total > 1)
+            throw new extErr.extendedError("More than one track found. Only 1 track supported in this version", true);
     }
 
     _process_data_chunk(data) {
@@ -224,7 +226,7 @@ class fmp4DashGenerator {
                 else if (currentAtom.getType() === enAtomNames.MOOF) {
                     const moof_data_tree = new mp4AtomTree.mp4AtomTree(this.mp4_atom_parser, currentAtom.getBuffer());
 
-                    //Callback for moof atom
+                    //Callback for moof atom/**/
                     if (this.callback_moof !== null)
                         this.callback_moof(this.callback_data_that, moof_data_tree.getRootNode());
 
