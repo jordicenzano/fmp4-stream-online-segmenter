@@ -1,6 +1,6 @@
 # fmp4-stream-online-segmenter
 
-This is a tool that allows you to create a DASH manifest from any fmp4 stream or file.
+This is a tool that allows you to create a DASH manifest from any fmp4 stream or file (just 1 h264 / AAC track allowed)
 For the online version all the process is done inside the browser, so the input fmp4 file is NOT uploaded anywhere making segmentation process fast and secure.
 We use byte ranges request inside the DASH manifest so that allows you to use the same fmp4 file as a source without having to modify it / split it.
 
@@ -26,7 +26,7 @@ You can execute `./fmp4-stream-segmenter-cli.js` (without arguments) to get help
 
 
 //TODO: live - tcp mode
-# Usage in the console to process TCP streams (live)
+# TODO: Usage in the console to process TCP streams (live)
 
 It provides a server TCP socket to ingest a TS TCP stream, and it generates a live EVENT or WINDOW chunklist, it also saves the chunk files indicating them as growing files, useful if you want to implement [LHLS](https://medium.com/@periscopecode/introducing-lhls-media-streaming-eb6212948bef) or reduce latency using chunked transfer. See Note 2 if you want to test it.
 
@@ -42,7 +42,13 @@ Note 1: If you do not have any ts file you can generate one by using `ffmpeg`:
 # Generate video real time (remove -re if you just want to generate the file quicker)
 ffmpeg -f lavfi -re -i smptebars=duration=15:size=320x200:rate=30 \
 -pix_fmt yuv420p -c:v libx264 -b:v 250k -g 30 -keyint_min 120 -profile:v baseline -preset veryfast \
--f mp4 -movflags empty_moov+omit_tfhd_offset+frag_keyframe+default_base_moof demo.mp4
+-f mp4 -movflags empty_moov+omit_tfhd_offset+frag_keyframe+default_base_moof demo_video.mp4
+
+# This will generate a 15s audio only fmp4
+# Generate audio real time (remove -re if you just want to generate the file quicker)
+ffmpeg -f lavfi -re -i sine=frequency=1000:duration=15:sample_rate=44100 \
+-c:a libfdk_aac -b:a 96k \
+-f mp4 -movflags empty_moov+omit_tfhd_offset+frag_keyframe+default_base_moof demo_audio,mp4
 ```
 
 //TODO live - tcp mode

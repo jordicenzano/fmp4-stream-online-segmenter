@@ -17,7 +17,7 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'TBD');
+        gtag('config', 'UA-120640377-1');
     </script>
 
     <!-- Search this file for TBD -->
@@ -37,14 +37,14 @@
 <div class="jumbotron">
     <div class="container">
         <h1>DASH manifest generator</h1>
-        <p>This is a tool that allows you to create an DASH manifest from any fmp4 file</p>
+        <p>This is a tool that allows you to create an DASH manifest from any single stream fmp4 file (h264 or AAC)</p>
         <p>All the process is done inside your browser, so your fmp4 files are NOT uploaded anywhere making segmentation process fast and secure</p>
         <p>We use byte ranges, so you can use the generated manifests to deliver DASH</p>
     </div>
 </div>
 <div class="container">
     <div class="form-group">
-        <label for="target_dur_s">Target duration (s):</label>
+        <label for="target_dur_s">Best effort target duration (s):</label>
         <select class="form-control" id="target_dur_s">
             <option value = "0" selected>0 (generate new chunk at each MOOF)</option>
             <option value = "1">1</option>
