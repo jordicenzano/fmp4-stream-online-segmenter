@@ -462,7 +462,7 @@ class mp4AtomParser {
                 }
             })*/
             .bit4('FrequencyIndex')
-            //TODO: BUG in binary parser skip is byte aligned, not statndart sampling freq not allowed in this implementation
+            //TODO: BUG in binary parser skip is byte aligned, not standart sampling freq not allowed in this implementation
             /*
             .choice('', {
                 tag: 'FrequencyIndex',

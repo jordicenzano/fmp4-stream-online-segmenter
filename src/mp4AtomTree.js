@@ -202,28 +202,6 @@ class mp4AtomTree {
         return ret;
     }
 
-    getFragmentbaseTrackID() {
-        //TODO: This is NOT working the MOOF contains all streams (Video + audio), and the data positions are inside moof
-        // The MDAT atom contains all streams
-
-        let dur_tb = -1;
-
-        let tfhd_nodes = this.atom_data_tree_root.all(function (node) {
-            let ret = false;
-            if (node.model.type === enAtomNames.TFHD) {
-                ret = true;
-            }
-
-            return ret;
-        });
-
-        if (tfhd_nodes.length > 0) {
-            dur_tb = tfhd_nodes[0].model.data.track_ID;
-        }
-
-        return dur_tb;
-    }
-
     getFragmentbaseMediaDecodeTime() {
         let dur_tb = -1;
 
